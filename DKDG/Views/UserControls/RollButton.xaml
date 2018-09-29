@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="DKDG.Views.UserControls.RollButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DKDG.Views.UserControls"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Button Command="{x:Static md:DialogHost.OpenDialogCommand}"
+                                Width="128" Margin="0 32 0 0">
+            <Button.CommandParameter>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding Advantage}">Advantage</CheckBox>
+                        <CheckBox Grid.Column="1" IsChecked="{Binding Crit}">Critical</CheckBox>
+                    </Grid>
+                    <!--public bool? Advantage { get; private set; }
+        public bool? Crit { get; private set; }-->
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Command="{Binding RollCommand}">
+                            <TextBlock>
+                                <Run Text="{Binding NumberOfDice}" />
+                                <Run Text="{Binding DieType}" />
+                            </TextBlock>
+                        </Button>
+                        <TextBlock Text="{Binding RollValue}" />
+                    </Grid>
+
+                    <Button Grid.Row="2" Command="{x:Static md:DialogHost.CloseDialogCommand}">CLOSE</Button>
+
+                    <!--
+        public Dice DieType { get; private set; }
+        public int Modifier { get; private set; }
+        public int NumberOfDice { get; private set; }
+                    -->
+                </Grid>
+            </Button.CommandParameter>
+            <TextBlock>
+                <Run Text="{Binding NumberOfDice}" />
+                <Run Text="{Binding DieType}" />
+            </TextBlock>
+        </Button>
+    </Grid>
+</UserControl>

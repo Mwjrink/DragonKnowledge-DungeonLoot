@@ -1,0 +1,109 @@
+﻿<UserControl x:Class="DKDG.Views.UserControls.SpellCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:util="clr-namespace:DKDG.Models.Utils"
+             xmlns:local="clr-namespace:DKDG.Views.UserControls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <md:Card Style="{StaticResource MainCardStyle}">
+        <Grid>
+            <TextBlock>
+                <Run Text="Name: " FontWeight="Bold" />
+                <Run Text="{Binding Name}" />
+            </TextBlock>
+            <TextBlock Text="{Binding Level, StringFormat='Components: {0}'}">
+                <Run Text="Level: " FontWeight="Bold" />
+                <Run Text="{Binding Level}" />
+            </TextBlock>
+            <TextBlock Text="Classes: " FontWeight="Bold" />
+            <ItemsControl ItemsSource="{Binding Classes}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock>
+                <Run Text="Components: " FontWeight="Bold" />
+                <Run Text="{Binding Components}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="CastTime: " FontWeight="Bold" />
+                <Run Text="{Binding CastTime}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Concentration: " FontWeight="Bold" />
+                <Run Text="{Binding Concentration}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Ritual: " FontWeight="Bold" />
+                <Run Text="{Binding Ritual}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Range: " FontWeight="Bold" />
+                <Run Text="{Binding Range}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="School: " FontWeight="Bold" />
+                <Run Text="{Binding School}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Description: " FontWeight="Bold" />
+                <Run Text="{Binding Description}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Damage: " FontWeight="Bold" />
+                <Run Text="{Binding Damage}" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="BonusDamagePerLevel: " FontWeight="Bold" />
+                <Run Text="{Binding BonusDamagePerLevel}" />
+            </TextBlock>
+            <TextBlock Text="Rolls: " FontWeight="Bold" />
+            <ItemsControl ItemsSource="{Binding Rolls}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:RollButton DataContext="{Binding}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </md:Card>
+</UserControl>
+
+<!--
+        public string Name { get; private set; }
+        public int Level { get; private set; }
+        public List<Class> Classes { get; } = new List<Class>();
+        public string Components { get; private set; }
+        public string CastTime { get; private set; }
+        public bool Concentration { get; private set; }
+        public string Duration { get; private set; }
+        public bool Ritual { get; private set; }
+        public int Range { get; private set; }
+        public SpellSchool School { get; private set; }
+        public string Description { get; private set; }
+        public Roll Damage { get; private set; }
+        public Dice BonusDamagePerLevel { get; private set; }
+        public List<Roll> Rolls { get; private set; } = new List<Roll>();
+    -->
+
+<!--
+        public Dice DieType { get; private set;
+        public int Modifier { get; private set;
+        public int NumberOfDice { get; private set; }}"
+    -->

@@ -1,0 +1,282 @@
+﻿<Window x:Class="DKDG.Views.CharacterCreation.CharacterCreationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-using System.Runtime.Serialization;
+namespace:DKDG.Views.CharacterCreation"
+        xmlns:nav="clr-using System.Runtime.Serialization;
+namespace:DKDG.Models.Navigation"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+        Title="Character Creation" Height="600" Width="1050">
+
+    <Window.Resources>
+        <ControlTemplate x:Key="SlideTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+
+                <materialDesign:Card Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                     Background="{StaticResource PrimaryHueLightBrush}"
+                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="15">
+                    <Grid>
+                        <ContentPresenter Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" />
+                    </Grid>
+                </materialDesign:Card>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="Back" Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" />
+
+                    <Button Grid.Column="2" Content="Next" Command="{x:Static materialDesign:Transitioner.MoveNextCommand}" />
+                </Grid>
+            </Grid>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="SelectorList">
+            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                    Content="{Binding Name}" />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <materialDesign:Transitioner SelectedIndex="0" Margin="10" FontSize="24">
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+                        Greetings, It seems you are in need of a character <LineBreak />
+                        Allow me to assist you, together we can create <LineBreak />
+                        a character worthy of the greatest tales.
+                    </TextBlock>
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="What is the Race of this great adventurer?" TextAlignment="Left" Margin="20" />
+                        <Grid Grid.Row="1" Margin="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <ListView ItemTemplate="{StaticResource SelectorList}" ItemsSource="{Binding AvailableRaces}" SelectedItem="{Binding SelectedRace, Mode=TwoWay}" />
+                            <ListView ItemTemplate="{StaticResource SelectorList}" ItemsSource="{Binding SelectedRace.SubRacesAvailable}" SelectedItem="{Binding SelectedRace.SelectedSubRace, Mode=TwoWay}" />
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="15">
+                                <TextBlock Text="{Binding SelectedRace.Name}" />
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Class Choice" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Ability Score Choices" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Choose Feat (if you get a feat)" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Alignment" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Background" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Spell Choices" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Proficiencies" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Languages" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Equipment" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Proficiencies" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Description" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide.OpeningEffects>
+                    <materialDesign:TransitionEffect Kind="SlideInFromBottom" Duration="0:0:0.8" />
+                    <materialDesign:TransitionEffect Kind="ExpandIn" Duration="0:0:0.8" />
+                </materialDesign:TransitionerSlide.OpeningEffects>
+                <ContentControl Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                                Template="{StaticResource SlideTemplate}">
+
+                    <TextBlock Text="Here is your character" TextAlignment="Center" />
+                </ContentControl>
+            </materialDesign:TransitionerSlide>
+        </materialDesign:Transitioner>
+
+        <!-- but you can use bare xaml too -->
+        <!--<local:Slide2_Intro />-->
+
+        <!--Stages
+            Race
+                Subrace
+            Class choice
+                subclasses if higher than 1
+                Higher level than 1? (checkbox?)
+            Ability Score choices
+                Feats
+            Alignment
+            Background
+            Spell Choices
+            Proficiencies
+            Languages
+            Equipment
+            Description
+                Name
+                Age
+                Sex
+                Weight
+                Height
+                Description
+                Personality Trait 1
+                Personality Trait 2
+                Ideals
+                Bonds
+                Flaws
+        -->
+    </Grid>
+</Window>

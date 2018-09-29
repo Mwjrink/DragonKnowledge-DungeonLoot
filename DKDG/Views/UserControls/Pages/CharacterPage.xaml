@@ -1,0 +1,507 @@
+﻿<UserControl x:Class="DKDG.Views.UserControls.CharacterPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:DKDG.Views.UserControls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <!--<Border BorderBrush="{StaticResource PrimaryHueMidBrush}" BorderThickness="2,0,0,0">-->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="{StaticResource PrimaryHueLightBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding Character.Level}" FontSize="64" HorizontalAlignment="Center"
+                            VerticalAlignment="Center" Foreground="{StaticResource PrimaryHueLightForegroundBrush}"
+                       Margin="10,0,10,0" />
+
+            <TextBlock Grid.Column="1" Text="{Binding Character.Title}" FontSize="42" HorizontalAlignment="Left"
+                        VerticalAlignment="Center" Padding="5,10,0,0" Foreground="{StaticResource PrimaryHueLightForegroundBrush}" />
+        </Grid>
+
+        <!--//TODO Max, Make these have buttons for rolls-->
+        <Grid Grid.Row="1">
+            <WrapPanel Grid.Row="1">
+
+                <md:Card x:Name="AbilityScoreCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="AbilityScoreCard" />
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0">
+                                <Run Text="Strength: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Strength, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="0" Grid.Row="1">
+                                <Run Text="Dexterity: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Dexterity, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="0" Grid.Row="2">
+                                <Run Text="Constitution: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Constitution, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="0">
+                                <Run Text="Intelligence: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Intelligence, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="1">
+                                <Run Text="Wisdom: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Wisdom, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="2">
+                                <Run Text="Charisma: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Charisma, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <!--Toggle button in corner for scores/mods-->
+                        </Grid>
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="SkillsCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <ListView ItemsSource="{Binding Character.Skills, Mode=OneWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <Run Text="{Binding Key.Name}" FontWeight="Bold" />
+                                        <Run Text="{Binding }"> <!--//TODO Max, find something to bind to that holds the ability check-->
+                                            <Run.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Value}">
+                                                            <DataTrigger.Setters>
+                                                                <Setter Property="FontWeight" Value="Bold" />
+                                                            </DataTrigger.Setters>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Run.Style>
+                                        </Run>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </md:Card>
+
+                <!--//TODO Max, Make this an actual saving throws thing-->
+                <md:Card x:Name="SavingThrowsCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="AbilityScoreCard" />
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0">
+                                <Run Text="Strength: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Strength, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="0" Grid.Row="1">
+                                <Run Text="Dexterity: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Dexterity, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="0" Grid.Row="2">
+                                <Run Text="Constitution: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Constitution, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="0">
+                                <Run Text="Intelligence: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Intelligence, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="1">
+                                <Run Text="Wisdom: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Wisdom, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <TextBlock Grid.Column="1" Grid.Row="2">
+                                <Run Text="Charisma: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Charisma, Mode=OneWay}" />
+                            </TextBlock>
+
+                            <!--Toggle button in corner for scores/mods-->
+                        </Grid>
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="QuickInfoCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Column="0" Grid.Row="0">
+                                <Run Text="AC: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.AC, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <TextBlock Grid.Column="0" Grid.Row="1">
+                                <Run Text="Initiative: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.Initiative, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <TextBlock Grid.Column="1" Grid.Row="0">
+                                <Run Text="Movement Speed: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.MovementSpeed, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <TextBlock Grid.Column="1" Grid.Row="1">
+                                <Run Text="Passive Perception: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.PassivePerception, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <TextBlock Grid.Column="2" Grid.Row="0">
+                                <Run Text="Proficiency Bonus: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.ProficiencyBonus, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <!--//TODO Max, make this have a custom dialog? with a reset and use one with a roll option-->
+                        <TextBlock Grid.Column="2" Grid.Row="1">
+                                <Run Text="Hit Dice: " FontWeight="Bold" />
+                                <Run Text="{Binding Character.HitDiceString, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <!--Toggle button in corner for scores/mods-->
+                    </Grid>
+                </md:Card>
+
+                <!--//TODO Max, Save Notes to character-->
+                <md:Card x:Name="NotesCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <md:DialogHost DialogClosing="NotesCard_DialogHost_OnDialogClosing" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                            <!--//Dialog Style-->
+                            <md:DialogHost.DialogContent>
+                                <StackPanel Margin="16">
+                                    <TextBlock>Add a new note.</TextBlock>
+                                    <TextBox Margin="0 8 0 0" HorizontalAlignment="Stretch" x:Name="FruitTextBox" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                        IsDefault="True"
+                                        Margin="0 8 8 0"
+                                        Command="md:DialogHost.CloseDialogCommand">
+                                            <Button.CommandParameter>
+                                                <sys:Boolean>True</sys:Boolean>
+                                            </Button.CommandParameter>
+                                            ACCEPT
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                        IsCancel="True"
+                                        Margin="0 8 8 0"
+                                        Command="md:DialogHost.CloseDialogCommand">
+                                            <Button.CommandParameter>
+                                                <sys:Boolean>False</sys:Boolean>
+                                            </Button.CommandParameter>
+                                            CANCEL
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </md:DialogHost.DialogContent>
+
+                            <!--//Main Style-->
+                            <Border BorderThickness="1" BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                            MinWidth="256" MinHeight="256" ClipToBounds="True">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <ListBox x:Name="NotesListBox">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <WrapPanel>
+                                                    <TextBlock Text="{Binding}" />
+                                                </WrapPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+
+                                    <md:ColorZone Mode="PrimaryMid" Grid.Row="1" Effect="{DynamicResource MaterialDesignShadowDepth5}">
+                                        <TextBlock Margin="16">Notes</TextBlock>
+                                    </md:ColorZone>
+                                    <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                                    Command="{x:Static md:DialogHost.OpenDialogCommand}"
+                                    VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                    Grid.Row="0" Margin="0 0 28 -20">
+                                        <md:PackIcon Kind="Plus" Height="22" Width="22" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </md:DialogHost>
+                    </Grid>
+                </md:Card>
+
+                <!--//TODO Max, Button to choose prepared spells-->
+                <md:Card x:Name="SpellsCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <ListView ItemsSource="{Binding Character.PreparedSpells, Mode=OneWay}">
+                            <!--<ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" />
+                                    </WrapPanel>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>-->
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{x:Static md:DialogHost.OpenDialogCommand}">
+                                        <TextBlock>
+                                            <Run Text="{Binding Name}" />
+                                            <Run Text=" " />
+                                            <Run Text="{Binding Level}" />
+                                        </TextBlock>
+                                        <Button.CommandParameter>
+                                            <local:SpellCard DataContext="{Binding}" />
+                                        </Button.CommandParameter>
+                                    </Button>
+
+                                    <!--<Button Grid.Row="2" Command="{x:Static md:DialogHost.CloseDialogCommand}">CLOSE</Button> -->
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <!--
+                        PreparedSpells
+                        KnownSpells
+                        -->
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="SpellSlotsCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <!--<TextBlock Text="SpellSlotsCard" />-->
+                        <CheckBox VerticalAlignment="Center" Style="{StaticResource MaterialDesignUserForegroundCheckBox}" >Level 1</CheckBox>
+                        <!--SpellSlots checkboxes-->
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="EquipmentCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <TextBlock Text="EquipmentCard" />
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="InventoriesCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <TextBlock Text="InventoriesCard" />
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="MoneyCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <TextBlock Text="MoneyCard" />
+                        <!--Money quick controls?????-->
+                    </Grid>
+                </md:Card>
+
+                <md:Card x:Name="MiscCard" Style="{StaticResource MainCardStyle}">
+                    <Grid>
+                        <TextBlock Text="MiscCard" />
+                        <DataGrid ItemsSource="{Binding Character.Temp}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                    </Grid>
+                </md:Card>
+            </WrapPanel>
+        </Grid>
+        <!--<Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>-->
+
+        <!--<ItemsControl ItemsSource="{Binding Character.Temp}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="{Binding Key}" HorizontalAlignment="Left"  Foreground="{StaticResource PrimaryHueLightForegroundBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Value}" HorizontalAlignment="Right" Foreground="{StaticResource PrimaryHueLightForegroundBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>-->
+
+        <!--</Grid>-->
+
+        <!--<Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="6*" />
+                        <ColumnDefinition Width="10*" />
+                        <ColumnDefinition Width="8*" />
+                    </Grid.ColumnDefinitions>
+
+                    <materialDesign:Card Grid.Column="0">
+                    </materialDesign:Card>
+
+                    <materialDesign:Flipper>
+                        <materialDesign:Flipper.FrontContent>
+                            <Grid Height="256" Width="200">
+                                <Button Command="{x:Static materialDesign:Flipper.FlipCommand}">EDIT</Button>
+                            </Grid>
+                        </materialDesign:Flipper.FrontContent>
+                        <materialDesign:Flipper.BackContent>
+                            <Grid Height="256" Width="200">
+                                <Button Command="{x:Static materialDesign:Flipper.FlipCommand}">DONE</Button>
+                            </Grid>
+                        </materialDesign:Flipper.BackContent>
+                    </materialDesign:Flipper>-->
+
+        <!--<Expander></Expander> ?????????????-->
+
+        <!--<smtx:XamlDisplay Key="groupbox_5" Grid.Column="1" Grid.Row="1">
+                        <GroupBox  Header="Card Group Box" Style="{DynamicResource MaterialDesignCardGroupBox}" Margin="16">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="ImageArea" Height="32" Width="32" VerticalAlignment="Center" />
+                                        <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubheadingTextBlock}" Text="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+                            <Image Source="Resources/Contact.png" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </GroupBox>
+                    </smtx:XamlDisplay>-->
+
+        <!--<Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    //TODO Add proficiencies to this list, maybe make it an item control?
+                    Column 1
+                    <TextBlock Grid.Row="0" Style="{StaticResource SkillStyle}" Text="{Binding Character.Dexterity, StringFormat=Acrobatics: {0}}" />
+                    <TextBlock Grid.Row="1" Style="{StaticResource SkillStyle}" Text="{Binding Character.Wisdom, StringFormat=Animal Handling: {0}}" />
+                    <TextBlock Grid.Row="2" Style="{StaticResource SkillStyle}" Text="{Binding Character.Intelligence, StringFormat=Arcana: {0}}" />
+                    <TextBlock Grid.Row="3" Style="{StaticResource SkillStyle}" Text="{Binding Character.Strength, StringFormat=Athletics: {0}}" />
+                    <TextBlock Grid.Row="4" Style="{StaticResource SkillStyle}" Text="{Binding Character.Charisma, StringFormat=Deception: {0}}" />
+                    <TextBlock Grid.Row="5" Style="{StaticResource SkillStyle}" Text="{Binding Character.Intelligence, StringFormat=History: {0}}" />
+                    <TextBlock Grid.Row="6" Style="{StaticResource SkillStyle}" Text="{Binding Character.Wisdom, StringFormat=Insight: {0}}" />
+                    <TextBlock Grid.Row="7" Style="{StaticResource SkillStyle}" Text="{Binding Character.Charisma, StringFormat=Intimidation: {0}}" />
+                    <TextBlock Grid.Row="8" Style="{StaticResource SkillStyle}" Text="{Binding Character.Intelligence, StringFormat=Investigation: {0}}" />
+
+                    Column 2
+                    <TextBlock Grid.Row="9" Style="{StaticResource SkillStyle}" Text="{Binding Character.Wisdom, StringFormat=Medicine: {0}}" />
+                    <TextBlock Grid.Row="10" Style="{StaticResource SkillStyle}" Text="{Binding Character.Intelligence, StringFormat=Nature: {0}}" />
+                    <TextBlock Grid.Row="11" Style="{StaticResource SkillStyle}" Text="{Binding Character.Wisdom, StringFormat=Perception: {0}}" />
+                    <TextBlock Grid.Row="12" Style="{StaticResource SkillStyle}" Text="{Binding Character.Charisma, StringFormat=Performance: {0}}" />
+                    <TextBlock Grid.Row="13" Style="{StaticResource SkillStyle}" Text="{Binding Character.Charisma, StringFormat=Persuasion: {0}}" />
+                    <TextBlock Grid.Row="14" Style="{StaticResource SkillStyle}" Text="{Binding Character.Intelligence, StringFormat=Religion: {0}}" />
+                    <TextBlock Grid.Row="15" Style="{StaticResource SkillStyle}" Text="{Binding Character.Dexterity, StringFormat=Sleight of Hand: {0}}" />
+                    <TextBlock Grid.Row="16" Style="{StaticResource SkillStyle}" Text="{Binding Character.Dexterity, StringFormat=Stealth: {0}}" />
+                    <TextBlock Grid.Row="17" Style="{StaticResource SkillStyle}" Text="{Binding Character.Wisdom, StringFormat=Survival: {0}}" />
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Strength, StringFormat=STR: {0}}" />
+                    <TextBlock Grid.Column="0" Grid.Row="1" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Dexterity, StringFormat=DEX: {0}}" />
+                    <TextBlock Grid.Column="0" Grid.Row="2" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Constitution, StringFormat=CON: {0}}" />
+
+                    <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Intelligence, StringFormat=INT: {0}}" />
+                    <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Wisdom, StringFormat=WIS: {0}}" />
+                    <TextBlock Grid.Column="1" Grid.Row="2" Style="{StaticResource AbilityStyle}" Text="{Binding Character.Charisma, StringFormat=CHA: {0}}" />
+                </Grid>-->
+
+        <!--</Grid>-->
+        <!--Ability modifiers-->
+
+        <!--Quick (AC, init...)-->
+
+        <!--Saving Throws-->
+
+        <!--Skills (perception, arcana...)-->
+
+        <!--Equipped Items-->
+
+        <!--Spells-->
+
+        <!--Char (age, name, weight)-->
+
+        <!--Languages and other racial, background, class benefits?-->
+    </Grid>
+    <!--</Border>-->
+</UserControl>

@@ -1,0 +1,40 @@
+﻿<Application x:Class="DKDG.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+                <!--Color Palettes-->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.BlueGrey.Named.Primary.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/MaterialDesignColor.Blue.Named.Primary.xaml" />
+                <!--LONG_COLOR_NAMEPrimaryXXX andLONG_COLOR_NAMEPrimaryXXXForeground, Accent swatches contain LONG_COLOR_NAMEAccentXXX and LONG_COLOR_NAMEAccentXXXForeground-->
+            </ResourceDictionary.MergedDictionaries>
+
+            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#62727b" />
+            <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="#ffffff" />
+            <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#37474f" />
+            <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="#ffffff" />
+            <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#102027" />
+            <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="#ffffff" />
+
+            <!-- include a single secondary accent color (and the associated forecolour) -->
+            <SolidColorBrush x:Key="SecondaryAccentBrush" Color="#42a5f5" />
+            <SolidColorBrush x:Key="SecondaryAccentForegroundBrush" Color="#ffffff" />
+
+            <Style TargetType="md:Card" x:Key="MainCardStyle">
+                <Setter Property="Background" Value="{StaticResource PrimaryHueLightBrush}" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Foreground" Value="{StaticResource PrimaryHueLightForegroundBrush}" />
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="UniformCornerRadius" Value="4" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
