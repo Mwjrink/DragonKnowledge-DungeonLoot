@@ -2,6 +2,8 @@
 
 namespace DKDG.Utils
 {
+    public class PrimaryKeyAttribute : Attribute { }
+
     public class SQLPropAttribute : Attribute
     {
         #region Properties

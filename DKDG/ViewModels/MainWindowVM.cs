@@ -56,18 +56,6 @@ namespace DKDG.ViewModels
             //"Browser"
             //"Rules"
 
-            //using (SQLiteConnection conn = new SQLiteConnection(@"Data Source=D:\test.db;"))
-            //{
-            //    conn.Open();
-
-            // SQLiteCommand command = new SQLiteCommand("Select * from yourTable", conn);
-            // SQLiteDataReader reader = command.ExecuteReader();
-
-            // while (reader.Read()) Console.WriteLine(reader["YourColumn"]);
-
-            //    reader.Close();
-            //}
-
             //PRINTS ALL PROPERTIES IN ALL CLASSES
             //foreach (Type ass in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsClass))
             //{
