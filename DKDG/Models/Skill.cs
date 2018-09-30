@@ -9,12 +9,22 @@ namespace DKDG.Models
     {
         #region Properties
 
-        public Ability baseAbility { get; private set; }
+        public Ability BaseAbility { get; private set; }
 
         public string Extension => "skl";
 
         public string Name { get; private set; }
 
         #endregion Properties
+
+        #region Constructors
+
+        public Skill(string name, Ability baseAbility)
+        {
+            Name = name;
+            BaseAbility = baseAbility;
+        }
+
+        #endregion Constructors
     }
 }

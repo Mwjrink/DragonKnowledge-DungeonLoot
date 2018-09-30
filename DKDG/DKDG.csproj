@@ -87,6 +87,7 @@
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\Class.cs" />
     <Compile Include="Models\Interfaces\ICreature.cs" />
+    <Compile Include="Models\Interfaces\IDisplayable.cs" />
     <Compile Include="Models\Interfaces\ISaveable.cs" />
     <Compile Include="Models\Monster.cs" />
     <Compile Include="Models\NPC.cs" />

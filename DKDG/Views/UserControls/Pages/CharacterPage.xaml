@@ -12,7 +12,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition />
+            <RowDefinition Height="0*" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Background="{StaticResource PrimaryHueLightBrush}">
@@ -31,7 +32,7 @@
 
         <!--//TODO Max, Make these have buttons for rolls-->
         <Grid Grid.Row="1">
-            <WrapPanel Grid.Row="1">
+            <WrapPanel>
 
                 <md:Card x:Name="AbilityScoreCard" Style="{StaticResource MainCardStyle}">
                     <Grid>
@@ -46,6 +47,8 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
@@ -53,35 +56,29 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Column="0" Grid.Row="0">
-                                <Run Text="Strength: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Strength, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Strength: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="0" Grid.Row="1">
-                                <Run Text="Dexterity: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Dexterity, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.Strength, Mode=OneWay}" />
 
-                            <TextBlock Grid.Column="0" Grid.Row="2">
-                                <Run Text="Constitution: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Constitution, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Dexterity: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="0">
-                                <Run Text="Intelligence: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Intelligence, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.Dexterity, Mode=OneWay}" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="1">
-                                <Run Text="Wisdom: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Wisdom, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="2" TextAlignment="Left" Margin="5" Text="Constitution: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="2">
-                                <Run Text="Charisma: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Charisma, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="2" TextAlignment="Right" Margin="5" Text="{Binding Character.Constitution, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Intelligence: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.Intelligence, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Wisdom: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.Wisdom, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="2" TextAlignment="Left" Margin="5" Text="Charisma: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="2" TextAlignment="Right" Margin="5"  Text="{Binding Character.Charisma, Mode=OneWay}" />
 
                             <!--Toggle button in corner for scores/mods-->
                         </Grid>
@@ -93,22 +90,27 @@
                         <ListView ItemsSource="{Binding Character.Skills, Mode=OneWay}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock>
-                                        <Run Text="{Binding Key.Name}" FontWeight="Bold" />
-                                        <Run Text="{Binding }"> <!--//TODO Max, find something to bind to that holds the ability check-->
-                                            <Run.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Key.Name, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource PrimaryHueLightForegroundBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding BaseAbility, Mode=OneWay}" Foreground="{StaticResource PrimaryHueLightForegroundBrush}">
+                                            <!--//TODO Max, find something to bind to that holds the ability check-->
+                                            <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Value}">
+                                                        <DataTrigger Binding="{Binding Value, Mode=OneWay}">
                                                             <DataTrigger.Setters>
                                                                 <Setter Property="FontWeight" Value="Bold" />
                                                             </DataTrigger.Setters>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </Run.Style>
-                                        </Run>
-                                    </TextBlock>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -123,10 +125,12 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="AbilityScoreCard" />
+                        <TextBlock Grid.Row="0" Text="SavingThrowsCard" />
 
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
@@ -136,35 +140,29 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Column="0" Grid.Row="0">
-                                <Run Text="Strength: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Strength, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Strength: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="0" Grid.Row="1">
-                                <Run Text="Dexterity: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Dexterity, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.Strength, Mode=OneWay}" />
 
-                            <TextBlock Grid.Column="0" Grid.Row="2">
-                                <Run Text="Constitution: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Constitution, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Dexterity: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="0">
-                                <Run Text="Intelligence: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Intelligence, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.Dexterity, Mode=OneWay}" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="1">
-                                <Run Text="Wisdom: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Wisdom, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="2" TextAlignment="Left" Margin="5" Text="Constitution: " FontWeight="Bold" />
 
-                            <TextBlock Grid.Column="1" Grid.Row="2">
-                                <Run Text="Charisma: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Charisma, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="2" TextAlignment="Right" Margin="5" Text="{Binding Character.Constitution, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Intelligence: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.Intelligence, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Wisdom: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.Wisdom, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="2" TextAlignment="Left" Margin="5" Text="Charisma: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="2" TextAlignment="Right" Margin="5"  Text="{Binding Character.Charisma, Mode=OneWay}" />
 
                             <!--Toggle button in corner for scores/mods-->
                         </Grid>
@@ -173,48 +171,54 @@
 
                 <md:Card x:Name="QuickInfoCard" Style="{StaticResource MainCardStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0" Grid.Row="0">
-                                <Run Text="AC: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.AC, Mode=OneWay}" />
-                        </TextBlock>
+                        <TextBlock Grid.Row="0" Text="QuickInfoCard" />
 
-                        <TextBlock Grid.Column="0" Grid.Row="1">
-                                <Run Text="Initiative: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.Initiative, Mode=OneWay}" />
-                        </TextBlock>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="1" Grid.Row="0">
-                                <Run Text="Movement Speed: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.MovementSpeed, Mode=OneWay}" />
-                        </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Left" Margin="5" Text="AC: " FontWeight="Bold" />
 
-                        <TextBlock Grid.Column="1" Grid.Row="1">
-                                <Run Text="Passive Perception: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.PassivePerception, Mode=OneWay}" />
-                        </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.AC, Mode=OneWay}" />
 
-                        <TextBlock Grid.Column="2" Grid.Row="0">
-                                <Run Text="Proficiency Bonus: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.ProficiencyBonus, Mode=OneWay}" />
-                        </TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Initiative: " FontWeight="Bold" />
 
-                        <!--//TODO Max, make this have a custom dialog? with a reset and use one with a roll option-->
-                        <TextBlock Grid.Column="2" Grid.Row="1">
-                                <Run Text="Hit Dice: " FontWeight="Bold" />
-                                <Run Text="{Binding Character.HitDiceString, Mode=OneWay}" />
-                        </TextBlock>
+                            <TextBlock Grid.Column="1" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.Initiative, Mode=OneWay}" />
 
-                        <!--Toggle button in corner for scores/mods-->
+                            <TextBlock Grid.Column="2" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Movement Speed: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.MovementSpeed, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="2" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Passive Perception: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="3" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.PassivePerception, Mode=OneWay}" />
+
+                            <TextBlock Grid.Column="4" Grid.Row="0" TextAlignment="Left" Margin="5" Text="Proficiency Bonus: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="5" Grid.Row="0" TextAlignment="Right" Margin="5" Text="{Binding Character.ProficiencyBonus, Mode=OneWay}" />
+
+                            <!--//TODO Max, make this have a custom dialog? with a reset and use one with a roll option-->
+                            <TextBlock Grid.Column="4" Grid.Row="1" TextAlignment="Left" Margin="5" Text="Hit Dice: " FontWeight="Bold" />
+
+                            <TextBlock Grid.Column="5" Grid.Row="1" TextAlignment="Right" Margin="5" Text="{Binding Character.HitDiceString, Mode=OneWay}" />
+
+                            <!--Toggle button in corner for scores/mods-->
+                        </Grid>
                     </Grid>
                 </md:Card>
 
@@ -264,7 +268,7 @@
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <WrapPanel>
-                                                    <TextBlock Text="{Binding}" />
+                                                    <TextBlock Text="{Binding}" Foreground="{StaticResource PrimaryHueLightForegroundBrush}" FontSize="14" />
                                                 </WrapPanel>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
@@ -323,7 +327,12 @@
                 <md:Card x:Name="SpellSlotsCard" Style="{StaticResource MainCardStyle}">
                     <Grid>
                         <!--<TextBlock Text="SpellSlotsCard" />-->
-                        <CheckBox VerticalAlignment="Center" Style="{StaticResource MaterialDesignUserForegroundCheckBox}" >Level 1</CheckBox>
+                        <md:Chip Content="James Willock" Background="{StaticResource PrimaryHueDarkBrush}" Foreground="{StaticResource PrimaryHueDarkForegroundBrush}">
+                            <md:Chip.Icon>
+                                <CheckBox />
+                                <!--//<Image Source="Resources/ProfilePic.jpg" />-->
+                            </md:Chip.Icon>
+                        </md:Chip>
                         <!--SpellSlots checkboxes-->
                     </Grid>
                 </md:Card>

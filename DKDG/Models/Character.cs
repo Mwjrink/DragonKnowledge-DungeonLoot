@@ -181,7 +181,58 @@ namespace DKDG.Models
             Levels = (lvls ?? Enumerable.Repeat(cls, Level)).ToList();
             HitPointMaximum = CalculateMaxHealth(true);
             HitPoints = HitPointMaximum;
+
+            Skills.Add(new Skill("Athletics", Ability.Strength), false);
+
+            Skills.Add(new Skill("Acrobatics", Ability.Dexterity), false);
+            Skills.Add(new Skill("Sleight of Hand", Ability.Dexterity), false);
+            Skills.Add(new Skill("Stealth", Ability.Dexterity), false);
+
+            Skills.Add(new Skill("Arcana", Ability.Intelligence), false);
+            Skills.Add(new Skill("History", Ability.Intelligence), false);
+            Skills.Add(new Skill("Investigation", Ability.Intelligence), false);
+            Skills.Add(new Skill("Nature", Ability.Intelligence), false);
+            Skills.Add(new Skill("Religion", Ability.Intelligence), false);
+
+            Skills.Add(new Skill("Animal Handling", Ability.Wisdom), false);
+            Skills.Add(new Skill("Insight", Ability.Wisdom), false);
+            Skills.Add(new Skill("Medicine", Ability.Wisdom), false);
+            Skills.Add(new Skill("Perception", Ability.Wisdom), false);
+            Skills.Add(new Skill("Survival", Ability.Wisdom), false);
+
+            Skills.Add(new Skill("Deception", Ability.Charisma), false);
+            Skills.Add(new Skill("Intimidation", Ability.Charisma), false);
+            Skills.Add(new Skill("Performance", Ability.Charisma), false);
+            Skills.Add(new Skill("Persuasion", Ability.Charisma), false);
         }
+
+        //Strength
+        //Athletics
+
+        //Dexterity
+        //Acrobatics
+        //Sleight of Hand
+        //Stealth
+
+        //Intelligence
+        //Arcana
+        //History
+        //Investigation
+        //Nature
+        //Religion
+
+        //Wisdom
+        //Animal Handling
+        //Insight
+        //Medicine
+        //Perception
+        //Survival
+
+        //Charisma
+        //Deception
+        //Intimidation
+        //Performance
+        //Persuasion
 
         #endregion Constructors
 
