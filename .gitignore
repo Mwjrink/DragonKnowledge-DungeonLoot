@@ -3,3 +3,4 @@ $ cat .gitignore
 /.vs
 /DKDG/bin
 /DKDG/obj
+*.user
