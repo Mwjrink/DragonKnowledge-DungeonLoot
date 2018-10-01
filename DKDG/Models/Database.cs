@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Reflection;
 using DKDG.Utils;
@@ -49,86 +48,153 @@ namespace DKDG.Models
         private ISaveable Load<T>(long ID) where T : new()
         {
             //get properties in class and load
-            T loaded = Activator.CreateInstance<T>();
+            var loaded = Activator.CreateInstance<T>();
 
             typeof(T).GetProperties();
 
-            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+            var properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
         }
 
-        private bool Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value) where T : ISaveable
+        private bool Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
+            where T : ISaveable
         {
-            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
-            foreach (T item in items)
+            var properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+
+            var saveDict = new Dictionary<SQLPropSaveType, List<(PropertyInfo, SQLPropAttribute)>>() {
+                    { SQLPropSaveType.Link, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+                    { SQLPropSaveType.MultipleChild, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+                    { SQLPropSaveType.MultipleParent, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+                    { SQLPropSaveType.Value, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() }
+                };
+
+            foreach (var prop in properties)
             {
-                string command = "";
-                var parameters = new List<SQLiteParameter>();
-                foreach (PropertyInfo prop in properties)
+                var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
+                saveDict[attribute.SaveRelationship].Add((prop, attribute));
+            }
+
+            foreach (var item in items)
+            {
+                //Save in the following order:
+                //multiChild
+                //Self with values and multiparentids inserted
+                //link
+
+                foreach (var saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
+                    Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+                    throw new ArgumentException("Cannot declare an ISCHILD relationship with an object that is not ISaveable.")),
+                    item.ID);
+
                 {
-                    var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
-                    object value = prop.GetValue(item);
+                    string query = "INSERT INTO @TableName (@parentIdColumn, @childIdColumn) VALUES (@parentId, @childId);";
+                    string columnNames = "(";
+                    string values = "(";
+                    var parameters = new List<(string, DbType, int, object)>();
 
-                    if (value == null && !attribute.Nullable)
-                        throw new NullReferenceException(item + ", " + prop.Name);
-
-                    switch (attribute.SaveRelationship)
+                    foreach ((var prop, var att) in saveDict[SQLPropSaveType.Value])
                     {
-                        case SQLPropSaveType.Link:
-
-                            break;
-
-                        case SQLPropSaveType.MultipleChild: //TODO Max, uh
-                            typeof(Database).GetMethod("Save").MakeGenericMethod(prop.PropertyType).Invoke(this, new object[] { new[] { value }, item.ID, SQLPropSaveType.MultipleChild });
-                            Save<prop.PropertyType>(value.Yield(), item.ID, SQLPropSaveType.MultipleChild);
-                            break;
-
-                        case SQLPropSaveType.MultipleParent:
-
-                            break;
-
-                        case SQLPropSaveType.Value:
-
-                            break;
+                        object value = prop.GetValue(item);
+                        parameters.Add(("@" + prop.Name, toDbType(value), -1, value));
                     }
+
+                    foreach ((var prop, var att) in saveDict[SQLPropSaveType.MultipleParent])
+                    {
+                        ///BLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEHHHH
+                        object value = prop.GetValue(item);
+                        parameters.Add(("@" + prop.Name, toDbType(value), -1, value));
+                    }
+
+                    query += columnNames + ')' + values + ");";
+                    SQLHelper.ExecuteNonQuery(query, collection, path);
                 }
 
                 SQLHelper.ExecuteNonQuery(command, parameters, path);
             }
         }
 
-        private IEnumerable<(string command, SQLiteParameterCollection parameters)> GetSaveCommand<T>(T item)
+        private DbType toDbType(object value)
         {
-            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
-            foreach (PropertyInfo prop in properties)
-            {
-                var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
-                object value = prop.GetValue(item);
-
-                if (value == null && !attribute.Nullable)
-                    throw new NullReferenceException(item + ", " + prop.Name);
-            }
+            if (value is string)
+                return DbType.String;
         }
 
-        private IEnumerable<(string command, SQLiteParameterCollection parameters)> GetLoadCommand<T>(T item)
+        private bool SaveLinkObject(string tableName, (string columnName, long Id) parent, (string columnName, long Id) child)
         {
-            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
-            foreach (PropertyInfo prop in properties)
+            IdCheck(parent.Id, child.Id);
+            string query = "INSERT INTO @TableName (@parentIdColumn, @childIdColumn) VALUES (@parentId, @childId);";
+            var collection = new List<(string, DbType, int, object)>()
             {
-                var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
-            }
+                ("@TableName", DbType.String, -1, tableName),
+                ("@parentIdColumn", DbType.String, -1, parent.columnName),
+                ("@childIdColumn", DbType.String, -1, child.columnName),
+                ("@parentId", DbType.UInt64, -1, parent.Id),
+                ("@childId", DbType.UInt64, -1, child.Id)
+            };
+            return SQLHelper.ExecuteNonQuery(query, collection, path) > 1;
         }
 
-        //using (SQLiteConnection conn = new SQLiteConnection(@"Data Source=D:\test.db;"))
+        private bool SaveLinkObject(string tableName, (string columnName, long Id) parent, (string columnName, long Id) child,
+            (string columnName, object value) customParam)
+        {
+            IdCheck(parent.Id, child.Id);
+            string query = @"INSERT INTO @TableName (@parentIdColumn, @childIdColumn, @customParamColumn)
+                                             VALUES (@parentId, @childId, @customParamValue);";
+            var collection = new List<(string, DbType, int, object)>()
+            {
+                ("@TableName", DbType.String, -1, tableName),
+                ("@parentIdColumn", DbType.String, -1, parent.columnName),
+                ("@childIdColumn", DbType.String, -1, child.columnName),
+                ("@parentId", DbType.UInt64, -1, parent.Id),
+                ("@childId", DbType.UInt64, -1, child.Id),
+                ("@customParamColumn", DbType.String, -1, customParam.columnName),
+                ("@customParamValue", DbType.String, -1, customParam.value)
+            };
+            return SQLHelper.ExecuteNonQuery(query, collection, path) > 1;
+        }
+
+        //private IEnumerable<(string command, SQLiteParameterCollection parameters)> GetSaveCommand<T>(T item)
         //{
-        //    conn.Open();
+        //    IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+        //    foreach (PropertyInfo prop in properties)
+        //    {
+        //        var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
+        //        object value = prop.GetValue(item);
 
-        // SQLiteCommand command = new SQLiteCommand("Select * from yourTable", conn);
-        // SQLiteDataReader reader = command.ExecuteReader();
-
-        // while (reader.Read()) Console.WriteLine(reader["YourColumn"]);
-
-        //    reader.Close();
+        //        if (value == null && !attribute.Nullable)
+        //            throw new NullReferenceException(item + ", " + prop.Name);
+        //    }
         //}
+
+        //private IEnumerable<(string command, SQLiteParameterCollection parameters)> GetLoadCommand<T>(T item)
+        //{
+        //    IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+        //    foreach (PropertyInfo prop in properties)
+        //    {
+        //        var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
+        //    }
+        //}
+
+        private void IdCheck(params long[] ids)
+        {
+            foreach (long id in ids.Where(id => id < 0))
+                throw new InvalidOperationException("Attempted to write and Id out of the range of the allowed Ids");
+        }
+
+        /// <summary>
+        /// Determines if the databases point to the same database
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>true if points to the same Database file (WARNING will return true no
+        /// matter the state of the caches)</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is Database database && path == database.path;
+        }
+
+        public override int GetHashCode()
+        {
+            return -1757656154 + EqualityComparer<string>.Default.GetHashCode(path);
+        }
 
         #endregion Methods
     }

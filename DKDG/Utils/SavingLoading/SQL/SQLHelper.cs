@@ -22,7 +22,10 @@ namespace DKDG.Utils
                     var command = new SQLiteCommand(query, conn);
 
                     foreach ((string parameterName, DbType parameterType, int parameterSize, object value) in sqlParameterCollection)
-                        command.Parameters.Add(new SQLiteParameter(parameterName, parameterType, parameterSize) { Value = value });
+                        if (parameterSize < 1)
+                            command.Parameters.Add(new SQLiteParameter(parameterName, parameterType) { Value = value });
+                        else
+                            command.Parameters.Add(new SQLiteParameter(parameterName, parameterType, parameterSize) { Value = value });
 
                     return action.Invoke(command);
                 }
@@ -60,13 +63,16 @@ namespace DKDG.Utils
         /// <param name="query">The command to execute.</param>
         /// <param name="sqlParameterCollection">The parameters of the command.</param>
         /// <returns>The number of rows inserted/updated affected by it.</returns>
-        public static int ExecuteNonQuery(string query, IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection, string path = null)
+        public static int ExecuteNonQuery(string query,
+            IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection,
+            string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command => command.ExecuteNonQuery(), path);
         }
 
         public static DataTable ExecuteQuery(string query,
-            IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection, string path = null)
+            IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection,
+            string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command =>
                         {

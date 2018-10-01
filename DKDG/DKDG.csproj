@@ -94,7 +94,7 @@
     <Compile Include="Models\Enums\Rarity.cs" />
     <Compile Include="Models\Enums\WeaponTypes.cs" />
     <Compile Include="Models\Enums\SpellSchool.cs" />
-    <Compile Include="Models\StaticDatabaseCache.cs" />
+    <Compile Include="Models\Database.cs" />
     <Compile Include="Utils\Basic\Dispatch.cs" />
     <Compile Include="Utils\INIValuesStatic.cs" />
     <Compile Include="Utils\Navigation\DocumentationLink.cs" />
