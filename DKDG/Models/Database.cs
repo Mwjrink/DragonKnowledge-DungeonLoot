@@ -48,17 +48,17 @@ namespace DKDG.Models
         private ISaveable Load<T>(long ID) where T : new()
         {
             //get properties in class and load
-            var loaded = Activator.CreateInstance<T>();
+            T loaded = Activator.CreateInstance<T>();
 
             typeof(T).GetProperties();
 
-            var properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
         }
 
         private bool Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
             where T : ISaveable
         {
-            var properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
 
             var saveDict = new Dictionary<SQLPropSaveType, List<(PropertyInfo, SQLPropAttribute)>>() {
                     { SQLPropSaveType.Link, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
@@ -67,20 +67,20 @@ namespace DKDG.Models
                     { SQLPropSaveType.Value, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() }
                 };
 
-            foreach (var prop in properties)
+            foreach (PropertyInfo prop in properties)
             {
                 var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
                 saveDict[attribute.SaveRelationship].Add((prop, attribute));
             }
 
-            foreach (var item in items)
+            foreach (T item in items)
             {
                 //Save in the following order:
                 //multiChild
                 //Self with values and multiparentids inserted
                 //link
 
-                foreach (var saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
+                foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
                     Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
                     throw new ArgumentException("Cannot declare an ISCHILD relationship with an object that is not ISaveable.")),
                     item.ID);
@@ -91,13 +91,13 @@ namespace DKDG.Models
                     string values = "(";
                     var parameters = new List<(string, DbType, int, object)>();
 
-                    foreach ((var prop, var att) in saveDict[SQLPropSaveType.Value])
+                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Value])
                     {
                         object value = prop.GetValue(item);
                         parameters.Add(("@" + prop.Name, toDbType(value), -1, value));
                     }
 
-                    foreach ((var prop, var att) in saveDict[SQLPropSaveType.MultipleParent])
+                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleParent])
                     {
                         ///BLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEHHHH
                         object value = prop.GetValue(item);

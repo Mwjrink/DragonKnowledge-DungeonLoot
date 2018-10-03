@@ -85,7 +85,7 @@
                     </Grid>
                 </md:Card>
 
-                <md:Card x:Name="SkillsCard" Style="{StaticResource MainCardStyle}">
+                <md:Card Grid.RowSpan="3" x:Name="SkillsCard" Style="{StaticResource MainCardStyle}">
                     <Grid>
                         <ListView ItemsSource="{Binding Character.Skills, Mode=OneWay}">
                             <ListView.ItemTemplate>
