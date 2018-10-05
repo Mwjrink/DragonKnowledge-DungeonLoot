@@ -44,7 +44,20 @@ namespace DKDG.Models
 
         #region Methods
 
-        public int nextId()
+        public bool InitializeDb()
+        {
+            /*
+            sqlite> PRAGMA foreign_keys;
+            0
+            sqlite> PRAGMA foreign_keys = ON;
+            sqlite> PRAGMA foreign_keys;
+            1 
+            */
+
+            return true;
+        }
+
+        public int NextId()
         {
             int index = 0;
 
@@ -72,6 +85,51 @@ namespace DKDG.Models
             //get dict to load into
         }
 
+        private const string UNIQUE_CONSTRAINT = "UNIQUE";
+        private const string NOT_NULL_CONSTRAINT = "NOT NULL";
+        private const string DEFAULT_VALUE = "DEFAULT {0}";
+        private const string FOREIGN_KEY_CONSTRAINT = "FOREIGN KEY ({0}) REFERENCES {1} (ID) ON DELETE CASCADE ON UPDATE NO ACTION,";
+        private const string ON_UPDATE = "ON UPDATE";
+        private const string ON_DELETE = "ON UPDATE";
+        private const string NO_ACTION = "ON UPDATE";
+        private const string RESTRICT = "ON UPDATE";
+        private const string SET_NULL = "ON UPDATE";
+        private const string SET_DEFAULT = "ON UPDATE";
+        private const string CASCADE = "ON UPDATE";
+        //COMMA AT THE END OF EACH STATEMENT/LINE/COLUMN
+
+        /*
+NULL. The value is a NULL value.
+
+INTEGER. The value is a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value.
+
+REAL. The value is a floating point value, stored as an 8-byte IEEE floating point number.
+
+TEXT. The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
+
+BLOB The value is a blob of data, stored exactly as it was input.
+         */
+
+        /*
+        contact_id integer PRIMARY KEY,
+        first_name text NOT NULL,
+        last_name text NOT NULL,
+        email text NOT NULL UNIQUE,
+        phone text NOT NULL UNIQUE
+
+         CREATE TABLE contact_groups (
+         contact_id integer,
+         group_id integer,
+         PRIMARY KEY (contact_id, group_id),
+         FOREIGN KEY (contact_id) REFERENCES contacts (contact_id) 
+         ON DELETE CASCADE ON UPDATE NO ACTION,
+         FOREIGN KEY (group_id) REFERENCES groups (group_id) 
+         ON DELETE CASCADE ON UPDATE NO ACTION
+        );
+        */
+
+            //IMAGES TABLE WITH AN ID COLUMN AND AN ID COLUMN
+
         private void GenerateTables(IEnumerable<Type> savables, HashSet<string> generated = null)
         {
             if (generated == null)
@@ -95,7 +153,7 @@ namespace DKDG.Models
 
 
 
-                    query += "CREATE TABLE @" + i + "(";
+                    query += "CREATE TABLE [IF NOT EXISTS] @" + i + "(";
                     parameters.Add(("@" + i, DbType.String, -1, savable.GetType().Name));
 
                     //TODO Max, make sure this gives "ID" not "ISaveable.ID"
@@ -113,7 +171,7 @@ namespace DKDG.Models
                             continue;
 
                         var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
-                        query += "@" + ++i;
+                        query += "@" + ++i + " PRIMARY KEY";
 
                         switch (attribute.SaveRelationship)
                         {
@@ -435,7 +493,7 @@ namespace DKDG.Models
         {
             foreach (ISaveable sav in savables)
                 if (!IdCheck(sav.ID))
-                    sav.ID = nextId();
+                    sav.ID = NextId();
         }
 
         private bool IdCheck(params long[] ids)
