@@ -11,6 +11,10 @@ namespace DKDG.Models
     {
         #region Fields
 
+        private Dictionary<int, bool> usedIds = new Dictionary<int, bool>();
+        private bool usedIdsFull = false;
+        private readonly object idLock = new object();
+
         private readonly string path = "";
         private readonly Dictionary<long, Armor> loadedArmor = new Dictionary<long, Armor>();
         private readonly Dictionary<long, Background> loadedBackground = new Dictionary<long, Background>();
@@ -40,25 +44,225 @@ namespace DKDG.Models
 
         #region Methods
 
+        public int nextId()
+        {
+            int index = 0;
+
+            lock (idLock)
+                if (usedIdsFull)
+                    usedIds.Add(index = usedIds.Max(x => x.Key), true);
+                else
+                    while (true)
+                        if (usedIds.TryGetValue(index, out bool used))
+                            if (!used)
+                            {
+                                usedIds.Add(index, true);
+                                if (index == usedIds.Max(x => x.Key))
+                                    usedIdsFull = true;
+                                break;
+                            }
+                            else
+                                index++;
+
+            return index;
+        }
+
         private void GenericFillDict<T>()
         {
             //get dict to load into
         }
 
-        private ISaveable Load<T>(long ID) where T : new()
+        private void GenerateTables(IEnumerable<Type> savables, HashSet<string> generated = null)
         {
-            //get properties in class and load
-            T loaded = Activator.CreateInstance<T>();
+            if (generated == null)
+                generated = new HashSet<string>();
 
-            typeof(T).GetProperties();
+            var mps = new List<PropertyInfo>();
+            var mcs = new List<PropertyInfo>();
+            var lks = new List<PropertyInfo>();
+            var vls = new List<PropertyInfo>();
 
-            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+            foreach (Type savable in savables)
+                if (generated.Add(savable.Name))
+                {
+                    IEnumerable<PropertyInfo> properties = savable.GetType().GetProperties()
+                                                            .Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+
+
+                    int i = 0;
+                    string query = "";
+                    var parameters = new List<(string, DbType, int, object)>();
+
+
+
+                    query += "CREATE TABLE @" + i + "(";
+                    parameters.Add(("@" + i, DbType.String, -1, savable.GetType().Name));
+
+                    //TODO Max, make sure this gives "ID" not "ISaveable.ID"
+                    query += "@" + ++i;
+                    parameters.Add(("@" + i, DbType.String, -1, nameof(ISaveable.ID)));
+
+
+                    //Generate in the following order
+                    //multiParent
+                    //this & value
+                    //multichild
+                    foreach (PropertyInfo prop in properties)
+                    {
+                        if (prop.Name == "ID")
+                            continue;
+
+                        var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
+                        query += "@" + ++i;
+
+                        switch (attribute.SaveRelationship)
+                        {
+                            case SQLPropSaveType.MultipleParent:
+                                mps.Add(prop);
+                                parameters.Add(("@" + i, DbType.String, -1, prop.Name));
+                                break;
+                            case SQLPropSaveType.Link:
+                                lks.Add(prop);
+                                break;
+                            case SQLPropSaveType.MultipleChild:
+                                mcs.Add(prop);
+                                break;
+                            case SQLPropSaveType.Value:
+                                vls.Add(prop);
+                                parameters.Add(("@" + i, DbType.String, -1, prop.Name));
+                                break;
+                        }
+                    }
+
+                    query += ");";
+
+                    GenerateTables(mps.Select(x => x.PropertyType), generated);
+
+                    SQLHelper.ExecuteNonQuery(query, parameters, path);
+
+                    GenerateTables(lks.Select(x => x.PropertyType), generated);
+
+                    //gen the link tables
+
+                    GenerateTables(mcs.Select(x => x.PropertyType), generated);
+
+                    mps.Clear();
+                    mcs.Clear();
+                    lks.Clear();
+                }
         }
 
-        private bool Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
+        private ISaveable Load<T>(long ID)
+            where T : ISaveable, new()
+        {
+            ////get properties in class and load
+            T loaded = Activator.CreateInstance<T>();
+
+            //IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+
+            //var aex = new List<(ISaveable, Exception)>();
+
+            //var saveDict = new Dictionary<SQLPropSaveType, List<(PropertyInfo, SQLPropAttribute)>>() {
+            //        { SQLPropSaveType.Link, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+            //        { SQLPropSaveType.MultipleChild, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+            //        { SQLPropSaveType.MultipleParent, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
+            //        { SQLPropSaveType.Value, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() }
+            //    };
+
+            //foreach (PropertyInfo prop in properties)
+            //{
+            //    var attribute = (SQLPropAttribute)prop.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault();
+            //    saveDict[attribute.SaveRelationship].Add((prop, attribute));
+            //}
+
+            //foreach (T item in items)
+            //{
+            //    //Save in the following order:
+            //    //multiParents
+            //    //Self with values and multiparentids inserted
+            //    //multiChilds
+            //    //link
+            //    CheckInsert(item);
+            //    try
+            //    {
+            //        foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleParent].GroupBy(x => x.Item1.PropertyType))
+            //            Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+            //            throw new ArgumentException("Cannot declare a MULTI-PARENT relationship with an object that is not ISaveable.")),
+            //            item.ID, SQLPropSaveType.MultipleParent);
+
+            //        {
+            //            string query = "INSERT INTO @TableName ";
+            //            string columnNames = "(";
+            //            string values = "(";
+            //            var parameters = new List<(string, DbType, int, object)>();
+            //            int i = 0;
+
+            //            foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Value])
+            //            {
+            //                parameters.Add(("@" + ++i, DbType.String, -1, prop.Name));
+            //                columnNames += "@" + i + ", ";
+
+            //                object value = prop.GetValue(item);
+            //                parameters.Add(("@" + ++i, toDbType(att.SaveType), -1, value));
+            //                values += "@" + i + ", ";
+            //            }
+
+            //            foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleParent])
+            //            {
+            //                parameters.Add(("@" + ++i, DbType.String, -1, prop.Name));
+            //                columnNames += "@" + i + ", ";
+
+            //                var value = prop.GetValue(item) as ISaveable;
+            //                parameters.Add(("@" + ++i, DbType.UInt64, -1, value.ID));
+            //                values += "@" + i + ", ";
+            //            }
+
+            //            query += columnNames + ") VALUES " + values + ");";
+            //            SQLHelper.ExecuteNonQuery(query, parameters, path);
+            //        }
+
+            //        foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
+            //            Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+            //            throw new ArgumentException("Cannot declare an MULTI-CHILD relationship with an object that is not ISaveable.")),
+            //            item.ID, SQLPropSaveType.MultipleChild);
+
+            //        foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.Link].GroupBy(x => x.Item1.PropertyType))
+            //        {
+            //            Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+            //            throw new ArgumentException("Cannot declare an MULTI-CHILD relationship with an object that is not ISaveable.")),
+            //            item.ID, SQLPropSaveType.MultipleChild);
+            //        }
+
+            //        foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Link])
+            //        {
+            //            var value = prop.GetValue(item) as ISaveable;
+            //            if (String.IsNullOrWhiteSpace(att.CustomColumnName))
+            //                SaveLinkObject(String.Join("-", item.GetType().Name, prop.PropertyType.Name),
+            //                    (item.GetType().Name, item.ID), (prop.PropertyType.Name, value.ID));
+            //            else
+            //                SaveLinkObject(String.Join("-", item.GetType().Name, prop.PropertyType.Name),
+            //                    (item.GetType().Name, item.ID), (prop.PropertyType.Name, value.ID),
+            //                    (att.CustomColumnName, att.CustomColumnValue.Invoke()));
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        aex.Add((item, ex));
+            //    }
+            //}
+
+            //if (aex.Any())
+            //    throw new AggregateException(String.Join(Environment.NewLine, aex.Select(x => x.Item1.ID)), aex.Select(x => x.Item2));
+
+            return loaded;
+        }
+
+        private void Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
             where T : ISaveable
         {
             IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+
+            var aex = new List<(ISaveable, Exception)>();
 
             var saveDict = new Dictionary<SQLPropSaveType, List<(PropertyInfo, SQLPropAttribute)>>() {
                     { SQLPropSaveType.Link, new List<(PropertyInfo prop, SQLPropAttribute attribute)>() },
@@ -76,46 +280,99 @@ namespace DKDG.Models
             foreach (T item in items)
             {
                 //Save in the following order:
-                //multiChild
+                //multiParents
                 //Self with values and multiparentids inserted
+                //multiChilds
                 //link
-
-                foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
-                    Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
-                    throw new ArgumentException("Cannot declare an ISCHILD relationship with an object that is not ISaveable.")),
-                    item.ID);
-
+                CheckInsert(item);
+                try
                 {
-                    string query = "INSERT INTO @TableName (@parentIdColumn, @childIdColumn) VALUES (@parentId, @childId);";
-                    string columnNames = "(";
-                    string values = "(";
-                    var parameters = new List<(string, DbType, int, object)>();
+                    foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleParent].GroupBy(x => x.Item1.PropertyType))
+                        Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+                        throw new ArgumentException("Cannot declare a MULTI-PARENT relationship with an object that is not ISaveable.")),
+                        item.ID, SQLPropSaveType.MultipleParent);
 
-                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Value])
                     {
-                        object value = prop.GetValue(item);
-                        parameters.Add(("@" + prop.Name, toDbType(value), -1, value));
+                        string query = "INSERT INTO @TableName ";
+                        string columnNames = "(";
+                        string values = "(";
+                        var parameters = new List<(string, DbType, int, object)>();
+                        int i = 0;
+
+                        foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Value])
+                        {
+                            parameters.Add(("@" + ++i, DbType.String, -1, prop.Name));
+                            columnNames += "@" + i + ", ";
+
+                            object value = prop.GetValue(item);
+                            parameters.Add(("@" + ++i, toDbType(att.SaveType), -1, value));
+                            values += "@" + i + ", ";
+                        }
+
+                        foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleParent])
+                        {
+                            parameters.Add(("@" + ++i, DbType.String, -1, prop.Name));
+                            columnNames += "@" + i + ", ";
+
+                            var value = prop.GetValue(item) as ISaveable;
+                            parameters.Add(("@" + ++i, DbType.UInt64, -1, value.ID));
+                            values += "@" + i + ", ";
+                        }
+
+                        query += columnNames.Remove(", ".Length) + ") VALUES "
+                            + values.Remove(", ".Length) + ");";
+                        SQLHelper.ExecuteNonQuery(query, parameters, path);
                     }
 
-                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleParent])
+                    foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.MultipleChild].GroupBy(x => x.Item1.PropertyType))
+                        Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+                        throw new ArgumentException("Cannot declare an MULTI-CHILD relationship with an object that is not ISaveable.")),
+                        item.ID, SQLPropSaveType.MultipleChild);
+
+                    foreach (IGrouping<Type, (PropertyInfo, SQLPropAttribute)> saveableGrouping in saveDict[SQLPropSaveType.Link].GroupBy(x => x.Item1.PropertyType))
                     {
-                        ///BLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEHHHH
-                        object value = prop.GetValue(item);
-                        parameters.Add(("@" + prop.Name, toDbType(value), -1, value));
+                        Save(saveableGrouping.Select(x => x.Item1.GetValue(item) as ISaveable ??
+                        throw new ArgumentException("Cannot declare an MULTI-CHILD relationship with an object that is not ISaveable.")),
+                        item.ID, SQLPropSaveType.MultipleChild);
                     }
 
-                    query += columnNames + ')' + values + ");";
-                    SQLHelper.ExecuteNonQuery(query, collection, path);
+                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Link])
+                    {
+                        var value = prop.GetValue(item) as ISaveable;
+                        if (String.IsNullOrWhiteSpace(att.CustomColumnName))
+                            SaveLinkObject(String.Join("-", item.GetType().Name, prop.PropertyType.Name),
+                                (item.GetType().Name, item.ID), (prop.PropertyType.Name, value.ID));
+                        else
+                            SaveLinkObject(String.Join("-", item.GetType().Name, prop.PropertyType.Name),
+                                (item.GetType().Name, item.ID), (prop.PropertyType.Name, value.ID),
+                                (att.CustomColumnName, att.CustomColumnValue.Invoke()));
+                    }
                 }
-
-                SQLHelper.ExecuteNonQuery(command, parameters, path);
+                catch (Exception ex)
+                {
+                    aex.Add((item, ex));
+                }
             }
+
+            if (aex.Any())
+                throw new AggregateException(String.Join(Environment.NewLine, aex.Select(x => x.Item1.ID)), aex.Select(x => x.Item2));
         }
 
-        private DbType toDbType(object value)
+        private DbType toDbType(SQLSaveType saveType)
         {
-            if (value is string)
-                return DbType.String;
+            switch (saveType)
+            {
+                case SQLSaveType.Blob:
+                    return DbType.Object;
+                case SQLSaveType.Real:
+                    return DbType.Double;
+                case SQLSaveType.Text:
+                    return DbType.String;
+                case SQLSaveType.Integer:
+                    return DbType.Int32;
+                default:
+                    return DbType.String;
+            }
         }
 
         private bool SaveLinkObject(string tableName, (string columnName, long Id) parent, (string columnName, long Id) child)
@@ -174,10 +431,19 @@ namespace DKDG.Models
         //    }
         //}
 
-        private void IdCheck(params long[] ids)
+        private void CheckInsert(params ISaveable[] savables)
         {
-            foreach (long id in ids.Where(id => id < 0))
-                throw new InvalidOperationException("Attempted to write and Id out of the range of the allowed Ids");
+            foreach (ISaveable sav in savables)
+                if (!IdCheck(sav.ID))
+                    sav.ID = nextId();
+        }
+
+        private bool IdCheck(params long[] ids)
+        {
+            foreach (long id in ids)
+                if (id < 0)
+                    return false; //throw new InvalidOperationException("Attempted to write and Id out of the range of the allowed Ids");
+            return true;
         }
 
         /// <summary>

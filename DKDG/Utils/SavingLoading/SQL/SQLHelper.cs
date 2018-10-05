@@ -2,16 +2,30 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Threading;
 
 namespace DKDG.Utils
 {
     public static class SQLHelper
     {
+        private static readonly ReaderWriterLockSlim accessLock = new ReaderWriterLockSlim();
+
+        private static readonly string commandWrapper =
+            @"BEGIN TRY
+                  BEGIN TRAN
+                      {0}
+                  COMMIT TRAN
+              END TRY
+              BEGIN CATCH
+                  IF(@@TRANCOUNT > 0)
+                      ROLLBACK TRAN;
+                  THROW;
+              END CATCH";
+
         #region Methods
 
-        private static T CommandPrep<T>(string query,
-                    IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection,
-                    Func<SQLiteCommand, T> action, string path = null)
+        private static T CommandPrep<T>(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
+            Func<SQLiteCommand, T> action, string path = null)
         {
             try
             {
@@ -19,7 +33,7 @@ namespace DKDG.Utils
                 {
                     conn.Open();
 
-                    var command = new SQLiteCommand(query, conn);
+                    var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
 
                     foreach ((string parameterName, DbType parameterType, int parameterSize, object value) in sqlParameterCollection)
                         if (parameterSize < 1)
@@ -36,9 +50,8 @@ namespace DKDG.Utils
             }
         }
 
-        private static T CommandPrep<T>(string query,
-                    SQLiteParameterCollection sqlParameterCollection,
-                    Func<SQLiteCommand, T> action, string path = null)
+        private static T CommandPrep<T>(string query, SQLiteParameterCollection sqlParameterCollection, 
+            Func<SQLiteCommand, T> action, string path = null)
         {
             try
             {
@@ -46,7 +59,7 @@ namespace DKDG.Utils
                 {
                     conn.Open();
 
-                    var command = new SQLiteCommand(query, conn);
+                    var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
                     command.Parameters.Add(sqlParameterCollection);
                     return action.Invoke(command);
                 }
@@ -56,46 +69,28 @@ namespace DKDG.Utils
                 return default(T);
             }
         }
-
-        /// <summary>
-        /// Execute the command and return the number of rows inserted/updated affected by it.
-        /// </summary>
-        /// <param name="query">The command to execute.</param>
-        /// <param name="sqlParameterCollection">The parameters of the command.</param>
-        /// <returns>The number of rows inserted/updated affected by it.</returns>
-        public static int ExecuteNonQuery(string query,
-            IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection,
-            string path = null)
-        {
-            return CommandPrep(query, sqlParameterCollection, command => command.ExecuteNonQuery(), path);
-        }
-
-        public static DataTable ExecuteQuery(string query,
-            IEnumerable<(string parameterName, DbType parameterType, int parameterSize, object value)> sqlParameterCollection,
+        
+        public static int ExecuteNonQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
             string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command =>
-                        {
-                            using (SQLiteDataReader reader = command.ExecuteReader())
-                            {
-                                var result = new DataTable();
-
-                                result.Load(reader);
-
-                                reader.Close();
-
-                                return result;
-                            }
-                        }, path);
+            {
+                using (accessLock.Write())
+                    return command.ExecuteNonQuery();
+            }, path);
         }
 
         public static int ExecuteNonQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
         {
-            return CommandPrep(query, sqlParameterCollection, command => command.ExecuteNonQuery(), path);
+            return CommandPrep(query, sqlParameterCollection, command =>
+            {
+                using (accessLock.Write())
+                    return command.ExecuteNonQuery();
+            }, path);
         }
 
-        public static DataTable ExecuteQuery(string query,
-            SQLiteParameterCollection sqlParameterCollection, string path = null)
+        public static DataTable ExecuteQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
+            string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command =>
             {
@@ -103,9 +98,24 @@ namespace DKDG.Utils
                 {
                     var result = new DataTable();
 
-                    result.Load(reader);
+                    using (accessLock.Read())
+                        result.Load(reader);
 
-                    reader.Close();
+                    return result;
+                }
+            }, path);
+        }
+
+        public static DataTable ExecuteQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
+        {
+            return CommandPrep(query, sqlParameterCollection, command =>
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    var result = new DataTable();
+
+                    using (accessLock.Read())
+                        result.Load(reader);
 
                     return result;
                 }
@@ -115,3 +125,18 @@ namespace DKDG.Utils
         #endregion Methods
     }
 }
+
+/*
+public static string stringer =
+@"DECLARE @first_table AS TABLE(col1 int IDENTITY, col_x varchar(20), col_y varchar(20))
+DECLARE @second_table AS TABLE(col2 int IDENTITY, col_z varchar(20), col_a varchar(20))
+DECLARE @third_table AS TABLE(col3 int IDENTITY, col_b varchar(20), col_c varchar(20))
+DECLARE @my_table AS TABLE(col1 int, col2 int, col3 int, col_v varchar(20))
+DECLARE @col1 int
+DECLARE @col2 int
+DECLARE @col3 int
+
+INSERT INTO dbo.Account(AccountId, Name , Balance) VALUES(1, 'Account1',  10000)
+UPDATE dbo.Account SET Balance = Balance + CAST('TEN THOUSAND' AS MONEY) WHERE AccountId = 1
+INSERT INTO dbo.Account(AccountId, Name , Balance) VALUES(2, 'Account2',  20000)";
+*/

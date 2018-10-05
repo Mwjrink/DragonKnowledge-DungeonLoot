@@ -9,7 +9,7 @@ namespace DKDG.Models
         string Extension { get; }
 
         [PrimaryKey]
-        long ID { get; }
+        long ID { get; set; }
 
         #endregion Properties
     }

@@ -5,7 +5,6 @@
         Integer,
         Text,
         Real,
-        Varchar,
         Blob
     }
 }
