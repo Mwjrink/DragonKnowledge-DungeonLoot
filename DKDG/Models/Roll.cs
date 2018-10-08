@@ -2,6 +2,7 @@
 
 using System.Runtime.Serialization;
 using System.Windows.Input;
+
 using DKDG.Models.Utils;
 using DKDG.Utils;
 using DKDG.ViewModels;
@@ -50,10 +51,7 @@ namespace DKDG.Models
 
             this.Crit = Crit;
             if (half)
-                if (Crit ?? false)
-                    Crit = null;
-                else
-                    Crit = false;
+                Crit = Crit ?? false ? null : (bool?)false;
 
             Advantage = advantage;
         }
@@ -66,7 +64,7 @@ namespace DKDG.Models
         {
             int value = 0;
             for (int i = 0; i < NumberOfDice; i++)
-                value += (int)random.NextDouble() * Utilities.DieMax(DieType) + 1;
+                value += ((int)random.NextDouble() * Utilities.DieMax(DieType)) + 1;
 
             return value;
         }
@@ -89,10 +87,7 @@ namespace DKDG.Models
 
             value += Modifier;
 
-            if (!(Crit ?? true))
-                return value / 2;
-
-            return value;
+            return !(Crit ?? true) ? value / 2 : value;
         }
 
         #endregion Methods

@@ -33,7 +33,7 @@ namespace DKDG.Utils
                                 string[] parsed = line.Split('=');
                                 typeof(INIValuesStatic).GetProperty(parsed[0].Trim(), BindingFlags.Static).SetValue(null, parsed[1].Trim());
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
                             }
                         }

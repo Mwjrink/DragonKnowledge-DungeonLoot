@@ -16,5 +16,11 @@ namespace DKDG.Models
         public string Extension => "eqp";
 
         #endregion Fields
+
+        #region Properties
+
+        public long ID { get; set; }
+
+        #endregion Properties
     }
 }

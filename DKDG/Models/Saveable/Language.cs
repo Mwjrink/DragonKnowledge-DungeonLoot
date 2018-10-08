@@ -9,6 +9,8 @@ namespace DKDG.Models
     {
         #region Properties
 
+        public long ID { get; set; }
+
         public string Extension => "lng";
 
         public string Name { get; private set; }

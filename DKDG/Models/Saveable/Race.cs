@@ -11,6 +11,8 @@ namespace DKDG.Models
     {
         #region Properties
 
+        public long ID { get; set; }
+
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public List<Modifier> AbilityScoreIncrease { get; private set; }
 
@@ -43,12 +45,12 @@ namespace DKDG.Models
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public string Name
         {
-            get => SelectedSubrace?.Name ?? raceName;
-            private set => raceName = value;
+            get => SelectedSubrace?.Name ?? RaceName;
+            private set => RaceName = value;
         }
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public string raceName { get; private set; }
+        public string RaceName { get; private set; }
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public Race SelectedSubrace { get; set; }

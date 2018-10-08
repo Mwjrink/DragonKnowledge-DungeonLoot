@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 
 using DKDG.ViewModels.Base;
+
 using MaterialDesignThemes.Wpf;
 
 namespace DKDG.Views.UserControls

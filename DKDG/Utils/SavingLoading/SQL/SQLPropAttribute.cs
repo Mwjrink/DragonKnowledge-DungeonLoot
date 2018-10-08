@@ -22,6 +22,12 @@ namespace DKDG.Utils
 
         #region Constructors
 
+        public string CustomColumnName { get; private set; }
+
+        public Func<object> CustomColumnValue { get; private set; }
+
+        public SQLPropAttribute CustomPropAttributes { get; private set; }
+
         public SQLPropAttribute(SQLPropSaveType saveRelationship, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
         {
             SaveRelationship = saveRelationship;
@@ -30,12 +36,6 @@ namespace DKDG.Utils
             DefaultValue = defaultValue;
             Unique = unique;
         }
-
-        public string CustomColumnName { get; private set; }
-
-        public Func<object> CustomColumnValue { get; private set; }
-
-        public SQLPropAttribute CustomPropAttributes { get; private set; }
 
         public SQLPropAttribute(string customColumnName, Func<object> customColumnValue, SQLPropAttribute customPropAttributes, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
         {

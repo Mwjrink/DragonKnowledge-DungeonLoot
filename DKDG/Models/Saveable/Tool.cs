@@ -9,6 +9,8 @@ namespace DKDG.Models
     {
         #region Properties
 
+        public long ID { get; set; }
+
         public string Extension => "tool";
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]

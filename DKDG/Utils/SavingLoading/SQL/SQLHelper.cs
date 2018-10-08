@@ -32,40 +32,44 @@ namespace DKDG.Utils
         {
             try
             {
-#if !DEBUG_SQL_STATEMENTS
-                using (var conn = new SQLiteConnection(path ?? INIValuesStatic.DB_PATH))
+                if (!DEBUG_SQL_STATEMENTS)
                 {
-                    conn.Open();
+#pragma warning disable CS0162 // Unreachable code detected
+                    using (var conn = new SQLiteConnection(path ?? INIValuesStatic.DB_PATH))
+                    {
+                        conn.Open();
 
-                    var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
-#endif
+                        var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
 
-                    foreach ((string parameterName, DbType parameterType, int parameterSize, object value) in sqlParameterCollection)
-                        if (parameterSize < 1)
-                            command.Parameters.Add(new SQLiteParameter(parameterName, parameterType) { Value = value });
-                        else
-                            command.Parameters.Add(new SQLiteParameter(parameterName, parameterType, parameterSize) { Value = value });
 
-#if DEBUG_SQL_STATEMENTS
+                        foreach ((string parameterName, DbType parameterType, int parameterSize, object value) in sqlParameterCollection)
+                            if (parameterSize < 1)
+                                command.Parameters.Add(new SQLiteParameter(parameterName, parameterType) { Value = value });
+                            else
+                                command.Parameters.Add(new SQLiteParameter(parameterName, parameterType, parameterSize) { Value = value });
+
+                        return action.Invoke(command);
+                    }
+#pragma warning restore CS0162 // Unreachable code detected
+                }
+                else
+                {
                     using (var fl = new FileStream(path ?? INIValuesStatic.DB_PATH, FileMode.OpenOrCreate))
                     using (var tw = new StreamWriter(fl))
                     {
-                        var New = query;
-                        foreach (var v in sqlParameterCollection)
-                            New.Replace(v.Item1, (string)v.Item4);
+                        string New = query;
+                        foreach ((string, DbType, int, object) v in sqlParameterCollection)
+                            New.Replace(v.Item1, v.Item4?.ToString());
                         tw.WriteLine(DateTime.Now);
                         tw.WriteLine();
                         tw.WriteLine(New);
                         tw.WriteLine(Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine);
 
                         return default(T);
-
-#else
-                    return action.Invoke(command);
-#endif
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return default(T);
             }
@@ -76,17 +80,38 @@ namespace DKDG.Utils
         {
             try
             {
-                using (var conn = new SQLiteConnection(path ?? INIValuesStatic.DB_PATH))
+                if (!DEBUG_SQL_STATEMENTS)
                 {
-                    conn.Open();
+#pragma warning disable CS0162 // Unreachable code detected
+                    using (var conn = new SQLiteConnection(path ?? INIValuesStatic.DB_PATH))
+                    {
+                        conn.Open();
 
-                    var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
-                    command.Parameters.Add(sqlParameterCollection);
+                        var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
+                        command.Parameters.Add(sqlParameterCollection);
 
-                    return action.Invoke(command);
+                        return action.Invoke(command);
+                    }
+#pragma warning restore CS0162 // Unreachable code detected
+                }
+                else
+                {
+                    using (var fl = new FileStream(path ?? INIValuesStatic.DB_PATH, FileMode.OpenOrCreate))
+                    using (var tw = new StreamWriter(fl))
+                    {
+                        string New = query;
+                        foreach ((string, DbType, int, object) v in sqlParameterCollection)
+                            New.Replace(v.Item1, (string)v.Item4);
+                        tw.WriteLine(DateTime.Now);
+                        tw.WriteLine();
+                        tw.WriteLine(New);
+                        tw.WriteLine(Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+
+                        return default(T);
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return default(T);
             }

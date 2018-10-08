@@ -66,6 +66,10 @@ namespace DKDG.ViewModels
 
             Characters.Add(new Character("Scanlan", new Alignment(Alignment1.Chaotic, Alignment2.Good),
                 new Background("Entertainer"), new Race("Forest Gnome"), 10, 13, 11, 15, 14, 7, 20, Bard));
+
+            var db = new Database("C:/Users/Max Rink/Desktop/TESTSAVE.txt");
+            db.InitializeDb();
+            db.Save(Characters);
         }
 
         #endregion Constructors

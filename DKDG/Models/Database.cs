@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+
 using DKDG.Utils;
 
 namespace DKDG.Models
@@ -17,6 +18,7 @@ namespace DKDG.Models
         private readonly object idLock = new object();
 
         private readonly string path = "";
+
         //private readonly Dictionary<long, Armor> loadedArmor = new Dictionary<long, Armor>();
         //private readonly Dictionary<long, Background> loadedBackground = new Dictionary<long, Background>();
         //private readonly Dictionary<long, Character> loadedCharacter = new Dictionary<long, Character>();
@@ -52,13 +54,17 @@ namespace DKDG.Models
             0
             sqlite> PRAGMA foreign_keys = ON;
             sqlite> PRAGMA foreign_keys;
-            1 
+            1
             */
 
             //turn on fkeys
             //get all types
             //order them
             //gen tables
+
+            foreach (Type v in OrderTypes(Assembly.GetExecutingAssembly().GetTypes()
+                    .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ISavable)))))
+                GenerateTables(v);
 
             return true;
         }
@@ -137,9 +143,9 @@ BLOB The value is a blob of data, stored exactly as it was input.
          contact_id integer,
          group_id integer,
          PRIMARY KEY (contact_id, group_id),
-         FOREIGN KEY (contact_id) REFERENCES contacts (contact_id) 
+         FOREIGN KEY (contact_id) REFERENCES contacts (contact_id)
          ON DELETE CASCADE ON UPDATE NO ACTION,
-         FOREIGN KEY (group_id) REFERENCES groups (group_id) 
+         FOREIGN KEY (group_id) REFERENCES groups (group_id)
          ON DELETE CASCADE ON UPDATE NO ACTION
         );
         */
@@ -160,7 +166,7 @@ BLOB The value is a blob of data, stored exactly as it was input.
             if (relationships == null)
                 relationships = new List<(Type child, Type parent)>();
 
-            foreach (var savable in savables)
+            foreach (Type savable in savables)
             {
                 if (tested.Add(savable.Name))
                 {
@@ -179,11 +185,9 @@ BLOB The value is a blob of data, stored exactly as it was input.
                             case SQLPropSaveType.MultipleParent:
                             case SQLPropSaveType.Link:
                             case SQLPropSaveType.MultipleChild:
-                                Type operable;
-                                if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                                    operable = prop.PropertyType.GenericTypeArguments.FirstOrDefault();
-                                else
-                                    operable = prop.PropertyType;
+                                Type operable = typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)
+                                    ? prop.PropertyType.GenericTypeArguments.FirstOrDefault()
+                                    : prop.PropertyType;
 
                                 if (operable == null)
                                     throw new Exception("An IEnumerable type was requested to be saved to the Db without a recognizable child type. Not quite sure how this happened");
@@ -199,13 +203,13 @@ BLOB The value is a blob of data, stored exactly as it was input.
                 }
             }
 
-            List<Type> topMostParents = new List<Type>();
+            var topMostParents = new List<Type>();
 
-            foreach (var savable in savables)
+            foreach (Type savable in savables)
             {
                 bool add = true;
-                foreach (var relationship in relationships)
-                    if (relationship.child == savable)
+                foreach ((Type child, Type parent) in relationships)
+                    if (child == savable)
                     {
                         add = false;
                         break;
@@ -233,12 +237,9 @@ BLOB The value is a blob of data, stored exactly as it was input.
                 IEnumerable<PropertyInfo> properties = savable.GetType().GetProperties()
                                                         .Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
 
-
                 int i = 0;
                 string query = "";
                 var parameters = new List<(string, DbType, int, object)>();
-
-
 
                 query += "CREATE TABLE [IF NOT EXISTS] @" + i + "(";
                 parameters.Add(("@" + i, DbType.String, -1, savable.GetType().Name));
@@ -246,7 +247,6 @@ BLOB The value is a blob of data, stored exactly as it was input.
                 //TODO Max, make sure this gives "ID" not "ISavable.ID"
                 query += "@" + ++i;
                 parameters.Add(("@" + i, DbType.String, -1, nameof(ISavable.ID)));
-
 
                 //Generate in the following order
                 //multiParent
@@ -263,36 +263,39 @@ BLOB The value is a blob of data, stored exactly as it was input.
                     switch (attribute.SaveRelationship)
                     {
                         case SQLPropSaveType.MultipleParent:
-                            {
-                                mps.Add(prop);
+                        {
+                            mps.Add(prop);
 
-                                var data = string.Join(" ", prop.Name, !attribute.Nullable ? NOT_NULL_CONSTRAINT : "", attribute.Unique ? UNIQUE_CONSTRAINT : "",
-                                    attribute.DefaultValue != null ? string.Format(DEFAULT_VALUE, attribute.DefaultValue) : "",
-                                    string.Format(FOREIGN_KEY_CONSTRAINT, prop.PropertyType.Name), ON_DELETE, CASCADE, ON_UPDATE, CASCADE);
-                                //if(attribute.OnDelete == FKeyActions.Cascade)
+                            string data = String.Join(" ", prop.Name, !attribute.Nullable ? NOT_NULL_CONSTRAINT : "", attribute.Unique ? UNIQUE_CONSTRAINT : "",
+                                    attribute.DefaultValue != null ? String.Format(DEFAULT_VALUE, attribute.DefaultValue) : "",
+                                    String.Format(FOREIGN_KEY_CONSTRAINT, prop.PropertyType.Name), ON_DELETE, CASCADE, ON_UPDATE, CASCADE);
+                            //if(attribute.OnDelete == FKeyActions.Cascade)
 
-                                parameters.Add(("@" + i, DbType.String, -1, data));
-                            }
-                            break;
+                            parameters.Add(("@" + i, DbType.String, -1, data));
+                        }
+                        break;
+
                         case SQLPropSaveType.Link:
                             lks.Add(prop);
                             break;
+
                         case SQLPropSaveType.MultipleChild:
                             mcs.Add(prop);
                             break;
+
                         case SQLPropSaveType.Value:
-                            {
-                                vls.Add(prop);
-                                if (prop.PropertyType.GetInterfaces().Any(x => x == typeof(ISavable)))
-                                    throw new InvalidOperationException(string.Format("You are using a value relationship in order to save {0} under the name: {1} " +
-                                        "under an object of type {2} when it is an ISavable, use multiparent for this", prop.PropertyType, prop.Name, savable.Name));
+                        {
+                            vls.Add(prop);
+                            if (prop.PropertyType.GetInterfaces().Any(x => x == typeof(ISavable)))
+                                throw new InvalidOperationException(String.Format("You are using a value relationship in order to save {0} under the name: {1} " +
+                                    "under an object of type {2} when it is an ISavable, use multiparent for this", prop.PropertyType, prop.Name, savable.Name));
 
-                                var data = string.Join(" ", prop.Name, !attribute.Nullable ? NOT_NULL_CONSTRAINT : "", attribute.Unique ? UNIQUE_CONSTRAINT : "",
-                                    attribute.DefaultValue != null ? string.Format(DEFAULT_VALUE, attribute.DefaultValue) : "");
+                            string data = String.Join(" ", prop.Name, !attribute.Nullable ? NOT_NULL_CONSTRAINT : "", attribute.Unique ? UNIQUE_CONSTRAINT : "",
+                                    attribute.DefaultValue != null ? String.Format(DEFAULT_VALUE, attribute.DefaultValue) : "");
 
-                                parameters.Add(("@" + i, DbType.String, -1, prop.Name));
-                            }
-                            break;
+                            parameters.Add(("@" + i, DbType.String, -1, prop.Name));
+                        }
+                        break;
                     }
                 }
 
@@ -306,23 +309,27 @@ BLOB The value is a blob of data, stored exactly as it was input.
 
                 i = 0;
                 parameters.Clear();
-                foreach (var lk in lks)
+                foreach (PropertyInfo lk in lks)
                 {
                     query = "CREATE TABLE [IF NOT EXISTS] " + lk.PropertyType.Name;
 
-                    query += ", " + Environment.NewLine;
+                    query += "( " + Environment.NewLine;
 
-                    query += string.Format("{0} INTEGER {1} REFERENCES {2}(ID) {3} {4} {5} {6}", lk.DeclaringType.Name, NOT_NULL_CONSTRAINT, lk.DeclaringType.Name, ON_UPDATE, CASCADE, ON_DELETE, CASCADE);
+                    query += String.Format("{0} INTEGER {1} REFERENCES {2}(ID) {3} {4} {5} {6}",
+                        lk.DeclaringType.Name, NOT_NULL_CONSTRAINT, lk.DeclaringType.Name, ON_UPDATE,
+                        CASCADE, ON_DELETE, CASCADE);
 
                     query += ", " + Environment.NewLine;
 
                     if (lk.GetCustomAttributes(typeof(SQLPropAttribute), false).FirstOrDefault() is SQLPropAttribute att && att.CustomColumnName != null)
-                        query += string.Join(" ", att.CustomColumnName, !att.CustomPropAttributes.Nullable ? NOT_NULL_CONSTRAINT : "", att.CustomPropAttributes.Unique ? UNIQUE_CONSTRAINT : "",
-                            att.CustomPropAttributes.DefaultValue != null ? string.Format(DEFAULT_VALUE, att.CustomPropAttributes.DefaultValue) : "");
+                        query += String.Join(" ", att.CustomColumnName, !att.CustomPropAttributes.Nullable ? NOT_NULL_CONSTRAINT : "", att.CustomPropAttributes.Unique ? UNIQUE_CONSTRAINT : "",
+                            att.CustomPropAttributes.DefaultValue != null ? String.Format(DEFAULT_VALUE, att.CustomPropAttributes.DefaultValue) : "");
 
                     query += ", " + Environment.NewLine;
 
-                    query += string.Format("{0} INTEGER {1} REFERENCES {2}(ID) {3} {4} {5} {6}", lk.PropertyType.Name, NOT_NULL_CONSTRAINT, lk.PropertyType.Name, ON_UPDATE, CASCADE, ON_DELETE, CASCADE);
+                    query += String.Format("{0} INTEGER {1} REFERENCES {2}(ID) {3} {4} {5} {6}",
+                        lk.PropertyType.Name, NOT_NULL_CONSTRAINT, lk.PropertyType.Name, ON_UPDATE,
+                        CASCADE, ON_DELETE, CASCADE);
 
                     query += ");";
                 }
@@ -334,7 +341,7 @@ BLOB The value is a blob of data, stored exactly as it was input.
             }
         }
 
-        private ISavable Load<T>(long ID)
+        public ISavable Load<T>(long ID)
             where T : ISavable, new()
         {
             ////get properties in class and load
@@ -439,7 +446,7 @@ BLOB The value is a blob of data, stored exactly as it was input.
             return loaded;
         }
 
-        private void Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
+        public void Save<T>(IEnumerable<T> items, long parentId = -1, SQLPropSaveType savingAs = SQLPropSaveType.Value)
             where T : ISavable
         {
             IEnumerable<PropertyInfo> properties = typeof(T).GetProperties().Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
@@ -504,14 +511,12 @@ BLOB The value is a blob of data, stored exactly as it was input.
                         SQLHelper.ExecuteNonQuery(query, parameters, path);
                     }
 
-                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleChild])
+                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.MultipleChild]
+                                                                  .Concat(saveDict[SQLPropSaveType.Link]))
                         Save(GetUseableObjectsFromProp(item, prop), item.ID, SQLPropSaveType.MultipleChild);
 
                     foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Link])
-                        Save(GetUseableObjectsFromProp(item, prop), item.ID, SQLPropSaveType.Link);
-
-                    foreach ((PropertyInfo prop, SQLPropAttribute att) in saveDict[SQLPropSaveType.Link])
-                        foreach (var value in GetUseableObjectsFromProp(item, prop))
+                        foreach (ISavable value in GetUseableObjectsFromProp(item, prop))
                             if (String.IsNullOrWhiteSpace(att.CustomColumnName))
                                 SaveLinkObject(String.Join("-", item.GetType().Name, prop.PropertyType.Name),
                                     (item.GetType().Name, item.ID), (prop.PropertyType.Name, value.ID));
@@ -532,35 +537,19 @@ BLOB The value is a blob of data, stored exactly as it was input.
 
         private static IEnumerable<ISavable> GetUseableObjectsFromProp<T>(T item, PropertyInfo prop) where T : ISavable
         {
-            IEnumerable<ISavable> operable;
-            Type actual;
-            if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            {
-                actual = prop.PropertyType.GenericTypeArguments.FirstOrDefault();
-                operable = (prop.GetValue(item) as IEnumerable).Cast<ISavable>();
-            }
-            else
-            {
-                actual = prop.PropertyType;
-                operable = new[] { prop.GetValue(item) as ISavable };
-            }
-#if Debug
-            if (actual == null)
-                throw new Exception("An IEnumerable type was requested to be saved to the Db without a recognizable child type. Not quite sure how this happened");
+            IEnumerable<ISavable> operable = typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)
+                ? (prop.GetValue(item) as IEnumerable).Cast<ISavable>()
+                : prop.GetValue(item).Yield().Cast<ISavable>();
+            // new[] { prop.GetValue(item) as ISavable };
 
-            if (actual.GetInterfaces().Any(x => x == typeof(ISavable)))
-                throw new Exception("Cannot declare a child relationship on an object that is not ISavable");
-#endif
-            return operable;
+            return operable ?? throw new Exception("Cannot declare a child relationship on an object that is not ISavable");
         }
 
         private static Type GetUseableTypeFromProp(PropertyInfo prop)
         {
-            Type actual;
-            if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                actual = prop.PropertyType.GenericTypeArguments.FirstOrDefault();
-            else
-                actual = prop.PropertyType;
+            Type actual = typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)
+                ? prop.PropertyType.GenericTypeArguments.FirstOrDefault()
+                : prop.PropertyType;
 
             return actual;
         }

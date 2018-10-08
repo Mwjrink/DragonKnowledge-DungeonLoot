@@ -25,6 +25,8 @@ namespace DKDG.Models
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public List<Tool> Tools { get; } = new List<Tool>(2);
 
+        public long ID { get; set; }
+
         #endregion Properties
 
         #region Constructors

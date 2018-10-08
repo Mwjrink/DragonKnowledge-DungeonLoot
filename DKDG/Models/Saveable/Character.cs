@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Media.Imaging;
+
 using DKDG.Utils;
 using DKDG.ViewModels;
 using DKDG.ViewModels.Base;
@@ -30,6 +31,8 @@ namespace DKDG.Models
         #endregion Events
 
         #region Properties
+
+        public long ID { get; set; }
 
         #region Calculated Properties
 

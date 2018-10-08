@@ -6,7 +6,7 @@ using DKDG.Utils;
 namespace DKDG.Models
 {
     [DataContract, SQLSavableObject]
-    public class Monster : ICreature
+    public class Monster : ICreature, ISavable
     {
         #region Properties
 
@@ -64,6 +64,10 @@ namespace DKDG.Models
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public CreatureType Type { get; private set; }
+
+        public string Extension => throw new System.NotImplementedException();
+
+        public long ID { get; set; }
 
         #endregion Properties
 

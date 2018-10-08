@@ -11,6 +11,8 @@ namespace DKDG.Models
     {
         #region Properties
 
+        public long ID { get; set; }
+
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public Dice BonusDamagePerLevel { get; private set; }
 

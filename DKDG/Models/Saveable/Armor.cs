@@ -31,6 +31,8 @@ namespace DKDG.Models
 
         public double Weight { get; private set; }
 
+        public long ID { get; set; }
+
         #endregion Properties
     }
 }

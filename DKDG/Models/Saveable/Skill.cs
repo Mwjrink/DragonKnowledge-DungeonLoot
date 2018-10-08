@@ -9,6 +9,8 @@ namespace DKDG.Models
     {
         #region Properties
 
+        public long ID { get; set; }
+
         public Ability BaseAbility { get; private set; }
 
         public string Extension => "skl";
