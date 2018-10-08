@@ -35,7 +35,9 @@ namespace DKDG.Utils
 
         public Func<object> CustomColumnValue { get; private set; }
 
-        public SQLPropAttribute(string customColumnName, Func<object> customColumnValue, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
+        public SQLPropAttribute CustomPropAttributes { get; private set; }
+
+        public SQLPropAttribute(string customColumnName, Func<object> customColumnValue, SQLPropAttribute customPropAttributes, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
         {
             SaveRelationship = SQLPropSaveType.Link;
             CustomColumnName = customColumnName;
@@ -44,6 +46,7 @@ namespace DKDG.Utils
             Nullable = nullable;
             DefaultValue = defaultValue;
             Unique = unique;
+            CustomPropAttributes = customPropAttributes;
         }
 
         #endregion Constructors

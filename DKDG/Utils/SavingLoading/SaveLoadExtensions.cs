@@ -20,7 +20,7 @@ namespace DKDG
                 propInfo.SetValue(obj, propsDict[propInfo.Name]);
         }
 
-        public static T Open<T>(string ext) where T : ISaveable
+        public static T Open<T>(string ext) where T : ISavable
         {
             var openDialog = new OpenFileDialog();
             openDialog.Multiselect = true;
@@ -40,7 +40,7 @@ namespace DKDG
                 yield return propInfo.Name;
         }
 
-        public static void Save<T>(this T obj) where T : ISaveable
+        public static void Save<T>(this T obj) where T : ISavable
         {
             var saveDialog = new SaveFileDialog();
             saveDialog.Title = "Save";

@@ -5,7 +5,7 @@ using DKDG.Utils;
 namespace DKDG.Models
 {
     [DataContract, SQLSavableObject]
-    public class Weapon : IItem, ISaveable
+    public class Weapon : IItem, ISavable
     {
         #region Properties
 

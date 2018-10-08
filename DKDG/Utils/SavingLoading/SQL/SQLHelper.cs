@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.IO;
 using System.Threading;
 
 namespace DKDG.Utils
@@ -9,6 +10,8 @@ namespace DKDG.Utils
     public static class SQLHelper
     {
         private static readonly ReaderWriterLockSlim accessLock = new ReaderWriterLockSlim();
+
+        private const bool DEBUG_SQL_STATEMENTS = true;
 
         private static readonly string commandWrapper =
             @"BEGIN TRY
@@ -24,16 +27,18 @@ namespace DKDG.Utils
 
         #region Methods
 
-        private static T CommandPrep<T>(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
+        private static T CommandPrep<T>(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection,
             Func<SQLiteCommand, T> action, string path = null)
         {
             try
             {
+#if !DEBUG_SQL_STATEMENTS
                 using (var conn = new SQLiteConnection(path ?? INIValuesStatic.DB_PATH))
                 {
                     conn.Open();
 
                     var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
+#endif
 
                     foreach ((string parameterName, DbType parameterType, int parameterSize, object value) in sqlParameterCollection)
                         if (parameterSize < 1)
@@ -41,7 +46,23 @@ namespace DKDG.Utils
                         else
                             command.Parameters.Add(new SQLiteParameter(parameterName, parameterType, parameterSize) { Value = value });
 
+#if DEBUG_SQL_STATEMENTS
+                    using (var fl = new FileStream(path ?? INIValuesStatic.DB_PATH, FileMode.OpenOrCreate))
+                    using (var tw = new StreamWriter(fl))
+                    {
+                        var New = query;
+                        foreach (var v in sqlParameterCollection)
+                            New.Replace(v.Item1, (string)v.Item4);
+                        tw.WriteLine(DateTime.Now);
+                        tw.WriteLine();
+                        tw.WriteLine(New);
+                        tw.WriteLine(Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+
+                        return default(T);
+
+#else
                     return action.Invoke(command);
+#endif
                 }
             }
             catch (Exception)
@@ -50,7 +71,7 @@ namespace DKDG.Utils
             }
         }
 
-        private static T CommandPrep<T>(string query, SQLiteParameterCollection sqlParameterCollection, 
+        private static T CommandPrep<T>(string query, SQLiteParameterCollection sqlParameterCollection,
             Func<SQLiteCommand, T> action, string path = null)
         {
             try
@@ -61,6 +82,7 @@ namespace DKDG.Utils
 
                     var command = new SQLiteCommand(String.Format(commandWrapper, query), conn);
                     command.Parameters.Add(sqlParameterCollection);
+
                     return action.Invoke(command);
                 }
             }
@@ -69,8 +91,8 @@ namespace DKDG.Utils
                 return default(T);
             }
         }
-        
-        public static int ExecuteNonQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
+
+        public static int ExecuteNonQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection,
             string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command =>
@@ -80,16 +102,16 @@ namespace DKDG.Utils
             }, path);
         }
 
-        public static int ExecuteNonQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
-        {
-            return CommandPrep(query, sqlParameterCollection, command =>
-            {
-                using (accessLock.Write())
-                    return command.ExecuteNonQuery();
-            }, path);
-        }
+        //public static int ExecuteNonQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
+        //{
+        //    return CommandPrep(query, sqlParameterCollection, command =>
+        //    {
+        //        using (accessLock.Write())
+        //            return command.ExecuteNonQuery();
+        //    }, path);
+        //}
 
-        public static DataTable ExecuteQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection, 
+        public static DataTable ExecuteQuery(string query, IEnumerable<(string, DbType, int, object)> sqlParameterCollection,
             string path = null)
         {
             return CommandPrep(query, sqlParameterCollection, command =>
@@ -106,21 +128,21 @@ namespace DKDG.Utils
             }, path);
         }
 
-        public static DataTable ExecuteQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
-        {
-            return CommandPrep(query, sqlParameterCollection, command =>
-            {
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    var result = new DataTable();
+        //public static DataTable ExecuteQuery(string query, SQLiteParameterCollection sqlParameterCollection, string path = null)
+        //{
+        //    return CommandPrep(query, sqlParameterCollection, command =>
+        //    {
+        //        using (SQLiteDataReader reader = command.ExecuteReader())
+        //        {
+        //            var result = new DataTable();
 
-                    using (accessLock.Read())
-                        result.Load(reader);
+        //            using (accessLock.Read())
+        //                result.Load(reader);
 
-                    return result;
-                }
-            }, path);
-        }
+        //            return result;
+        //        }
+        //    }, path);
+        //}
 
         #endregion Methods
     }

@@ -7,7 +7,7 @@ using DKDG.Utils;
 namespace DKDG.Models
 {
     [DataContract, SQLSavableObject]
-    public class Background : ISaveable
+    public class Background : ISavable
     {
         #region Properties
 

@@ -2,7 +2,7 @@
 
 namespace DKDG.Models
 {
-    public interface ISaveable
+    public interface ISavable
     {
         #region Properties
 

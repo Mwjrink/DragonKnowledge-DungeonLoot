@@ -13,7 +13,7 @@ namespace DKDG.Models
     //DataContractAttribute attribute, and marking all of its members you want serialized with the DataMemberAttribute attribute.
     //If the type is a collection, consider marking it with the CollectionDataContractAttribute
     [DataContract, SQLSavableObject]
-    public class Character : ViewModelBase, ICreature, ISaveable, IDisplayable
+    public class Character : ViewModelBase, ICreature, ISavable, IDisplayable
     {
         #region Fields
 

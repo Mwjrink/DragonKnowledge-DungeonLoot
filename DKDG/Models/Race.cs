@@ -7,7 +7,7 @@ using DKDG.Utils;
 namespace DKDG.Models
 {
     [DataContract, SQLSavableObject]
-    public class Race : IRace, ISaveable
+    public class Race : IRace, ISavable
     {
         #region Properties
 
