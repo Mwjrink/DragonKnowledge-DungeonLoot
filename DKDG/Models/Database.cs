@@ -62,8 +62,9 @@ namespace DKDG.Models
             //order them
             //gen tables
 
-            foreach (Type v in OrderTypes(Assembly.GetExecutingAssembly().GetTypes()
-                    .Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ISavable)))))
+            List<Type> types = OrderTypes(Assembly.GetExecutingAssembly().GetTypes());
+            var typesSavable = types.Where(t => t.IsClass && t.GetInterfaces().Contains(typeof(ISavable))).ToList();
+            foreach (Type v in typesSavable)
                 GenerateTables(v);
 
             return true;
@@ -170,7 +171,7 @@ BLOB The value is a blob of data, stored exactly as it was input.
             {
                 if (tested.Add(savable.Name))
                 {
-                    IEnumerable<PropertyInfo> properties = savable.GetType().GetProperties()
+                    IEnumerable<PropertyInfo> properties = savable.GetProperties()
                                                             .Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
 
                     foreach (PropertyInfo prop in properties)
@@ -234,8 +235,8 @@ BLOB The value is a blob of data, stored exactly as it was input.
 
             if (generated.Add(savable.Name))
             {
-                IEnumerable<PropertyInfo> properties = savable.GetType().GetProperties()
-                                                        .Where(p => p.IsDefined(typeof(SQLPropAttribute), false));
+                IEnumerable<PropertyInfo> properties = savable.GetProperties()
+                    .Where(p => p.IsDefined(typeof(SQLPropAttribute), false)).ToList();
 
                 int i = 0;
                 string query = "";

@@ -2,8 +2,6 @@
 
 namespace DKDG.Utils
 {
-    public class PrimaryKeyAttribute : Attribute { }
-
     public class SQLPropAttribute : Attribute
     {
         #region Properties
@@ -18,17 +16,14 @@ namespace DKDG.Utils
 
         public bool Unique { get; private set; }
 
+        public string CustomColumnName { get; private set; }
+
         #endregion Properties
 
         #region Constructors
 
-        public string CustomColumnName { get; private set; }
-
-        public Func<object> CustomColumnValue { get; private set; }
-
-        public SQLPropAttribute CustomPropAttributes { get; private set; }
-
-        public SQLPropAttribute(SQLPropSaveType saveRelationship, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
+        public SQLPropAttribute(SQLPropSaveType saveRelationship, SQLSaveType saveType, bool nullable = false, object defaultValue = null,
+            bool unique = false)
         {
             SaveRelationship = saveRelationship;
             SaveType = saveType;
@@ -37,16 +32,38 @@ namespace DKDG.Utils
             Unique = unique;
         }
 
-        public SQLPropAttribute(string customColumnName, Func<object> customColumnValue, SQLPropAttribute customPropAttributes, SQLSaveType saveType, bool nullable = false, object defaultValue = null, bool unique = false)
+        public SQLPropAttribute(SQLPropSaveType saveRelationship, bool nullable = false, object defaultValue = null, bool unique = false)
         {
-            SaveRelationship = SQLPropSaveType.Link;
-            CustomColumnName = customColumnName;
-            CustomColumnValue = customColumnValue;
-            SaveType = saveType;
+            if (saveRelationship == SQLPropSaveType.Value)
+                throw new InvalidOperationException("Cannot declare a value relationship without specifying the SaveType");
+            SaveRelationship = saveRelationship;
             Nullable = nullable;
             DefaultValue = defaultValue;
             Unique = unique;
-            CustomPropAttributes = customPropAttributes;
+        }
+
+        public SQLSaveType CustomColumnSaveType { get; private set; }
+
+        public bool CustomColumnNullable { get; private set; }
+
+        public object CustomColumnDefaultValue { get; private set; }
+
+        public bool CustomColumnUnique { get; private set; }
+
+        public SQLPropAttribute(string customColumnName, SQLSaveType CustomColumnSaveType, bool CustomColumnNullable = false,
+            object CustomColumnDefaultValue = null, bool CustomColumnUnique = false, object defaultValue = null,
+            bool unique = false)
+        {
+            SaveRelationship = SQLPropSaveType.Link;
+            CustomColumnName = customColumnName;
+            Nullable = nullable;
+            DefaultValue = defaultValue;
+            Unique = unique;
+
+            this.CustomColumnSaveType = CustomColumnSaveType;
+            this.CustomColumnNullable = CustomColumnNullable;
+            this.CustomColumnDefaultValue = CustomColumnDefaultValue;
+            this.CustomColumnUnique = CustomColumnUnique;
         }
 
         #endregion Constructors

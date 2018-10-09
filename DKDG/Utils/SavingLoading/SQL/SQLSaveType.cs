@@ -5,6 +5,7 @@
         Integer,
         Text,
         Real,
-        Blob
+        Blob,
+        Bool
     }
 }
