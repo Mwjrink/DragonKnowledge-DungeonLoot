@@ -13,6 +13,8 @@ namespace DKDG.Models
 
         public long ID { get; set; }
 
+        public string Extension => "spl";
+
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public Dice BonusDamagePerLevel { get; private set; }
 
@@ -36,8 +38,6 @@ namespace DKDG.Models
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public string Duration { get; private set; }
-
-        public string Extension => "spl";
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public int Level { get; private set; }

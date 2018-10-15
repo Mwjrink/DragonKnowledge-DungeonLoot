@@ -13,7 +13,7 @@ namespace DKDG.Models
 
         public string Extension => "tool";
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Bool)]
         public bool Proficient { get; private set; }
 
         #endregion Properties

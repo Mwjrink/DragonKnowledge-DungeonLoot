@@ -56,7 +56,6 @@ namespace DKDG.Utils
         {
             SaveRelationship = SQLPropSaveType.Link;
             CustomColumnName = customColumnName;
-            Nullable = nullable;
             DefaultValue = defaultValue;
             Unique = unique;
 

@@ -10,8 +10,6 @@
 
         string Description { get; }
 
-        string GUID { get; }
-
         bool Magical { get; }
 
         (string Ability, int Amount) MinimumAbility { get; }
@@ -20,7 +18,7 @@
 
         Rarity Rarity { get; }
 
-        int Value { get; }
+        Money Value { get; }
 
         double Weight { get; }
 

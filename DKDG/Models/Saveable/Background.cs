@@ -11,18 +11,18 @@ namespace DKDG.Models
     {
         #region Properties
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        private List<string> Proficiencies { get; } = new List<string>(2);
+        [DataMember, SQLProp(SQLPropSaveType.Link)]
+        private List<Skill> Proficiencies { get; } = new List<Skill>(2);
 
         public string Extension => "bkg";
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Link)]
         public List<Language> Languages { get; } = new List<Language>(2);
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Name { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Link)]
         public List<Tool> Tools { get; } = new List<Tool>(2);
 
         public long ID { get; set; }

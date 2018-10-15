@@ -84,7 +84,7 @@ namespace DKDG.Models
 
         #endregion Ability Scores
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, something custom to load
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)]
         public Alignment Alignment { get; private set; }
 
         [DataMember, SQLProp(SQLPropSaveType.MultipleParent, false)]
@@ -114,7 +114,11 @@ namespace DKDG.Models
         [DataMember, SQLProp("Level", SQLSaveType.Integer, false, CustomColumnUnique: true)]
         public List<Class> Levels { get; private set; } = new List<Class>(App.MAX_LEVEL);
 
-        public List<IItem> Loot => throw new NotImplementedException();
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Experience { get; private set; }
+
+        [DataMember, SQLProp(SQLPropSaveType.Link)]
+        public List<IItem> Loot { get; private set; } = new List<IItem>();
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Real, false)]
         public Money Money { get; private set; } = new Money();

@@ -13,20 +13,22 @@ namespace DKDG.Models
 
         public long ID { get; set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        public string Extension => "rce";
+
+        [DataMember, SQLProp(SQLPropSaveType.MultipleChild)]
         public List<Modifier> AbilityScoreIncrease { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Age { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public string Alignment { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.MultipleParent, SQLSaveType.Text)]
+        public Alignment Alignment { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public List<string> ArmorProficiencies { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
+        public List<ArmorType> ArmorProficiencies { get; private set; } //TODO Max, something special
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int DarkVision { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer, true)]
+        public int? DarkVision { get; private set; }
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public string DarkVisionExtraDescription { get; private set; }
@@ -34,15 +36,13 @@ namespace DKDG.Models
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public string Description { get; private set; }
 
-        public string Extension => "rce";
-
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public Dictionary<string, string> Extras { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Link, SQLSaveType.Text)]
         public List<Language> Languages { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, unique: true)]
         public string Name
         {
             get => SelectedSubrace?.Name ?? RaceName;

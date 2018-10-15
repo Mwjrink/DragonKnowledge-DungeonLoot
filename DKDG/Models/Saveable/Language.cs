@@ -13,6 +13,7 @@ namespace DKDG.Models
 
         public string Extension => "lng";
 
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Name { get; private set; }
 
         #endregion Properties

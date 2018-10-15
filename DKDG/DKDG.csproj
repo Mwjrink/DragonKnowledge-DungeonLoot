@@ -79,6 +79,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Enums\ArmorType.cs" />
     <Compile Include="Models\Enums\CreatureType.cs" />
     <Compile Include="Models\Enums\Ability.cs" />
     <Compile Include="Models\Alignment.cs" />

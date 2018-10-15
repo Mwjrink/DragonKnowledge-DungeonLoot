@@ -9,26 +9,24 @@ namespace DKDG.Models
     [DataContract, SQLSavableObject]
     public class Class : IClass, ISavable
     {
-        #region Fields
-
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public Dictionary<int, List<int>> SpellSlots = new Dictionary<int, List<int>>();
-
-        #endregion Fields
-
         #region Properties
 
         public long ID { get; set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public bool Custom { get; private set; }
-
         public string Extension => "cls";
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        //TODO Max, something custom (Static Dictionary of actions to save and load data with 
+        // string (Type.name + . + PropertyName) as key
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] 
+        public Dictionary<int, List<bool>> SpellSlots { get; private set; } = new Dictionary<int, List<bool>>();
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Bool)]
+        public bool Custom { get; private set; }
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public Dice HitDice { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Name { get; private set; }
 
         #endregion Properties

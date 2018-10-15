@@ -7,14 +7,21 @@ using DKDG.Utils;
 namespace DKDG.Models
 {
     [DataContract, SQLSavableObject]
-    public class Modifier
+    public class Modifier : ISavable
     {
         #region Properties
 
+        public long ID { get; set; }
+
+        public string Extension => "";
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
         public int Mod { get; private set; }
 
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Multipler { get; private set; }
 
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Name { get; private set; }
 
         #endregion Properties

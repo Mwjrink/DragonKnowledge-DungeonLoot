@@ -41,7 +41,7 @@ namespace DKDG.Models
         public Rarity Rarity { get; private set; }
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Value { get; private set; }
+        public Money Value { get; private set; }
 
         [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
         public WeaponType WeaponType { get; private set; }

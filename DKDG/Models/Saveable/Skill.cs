@@ -11,10 +11,12 @@ namespace DKDG.Models
 
         public long ID { get; set; }
 
-        public Ability BaseAbility { get; private set; }
-
         public string Extension => "skl";
 
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
+        public Ability BaseAbility { get; private set; }
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public string Name { get; private set; }
 
         #endregion Properties

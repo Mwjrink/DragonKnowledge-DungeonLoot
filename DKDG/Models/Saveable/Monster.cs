@@ -12,62 +12,65 @@ namespace DKDG.Models
 
         #region Ability Scores
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Charisma { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Charisma { get; private set; } = 8;
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Constitution { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Constitution { get; private set; } = 8;
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Dexterity { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Dexterity { get; private set; } = 8;
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Intelligence { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Intelligence { get; private set; } = 8;
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Strength { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Strength { get; private set; } = 8;
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
-        public int Wisdom { get; private set; }
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Wisdom { get; private set; } = 8;
 
         #endregion Ability Scores
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        public long ID { get; set; }
+
+        public string Extension => "mstr";
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
         public int AC { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.MultipleParent)]
         public Alignment Alignment { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Real)]
         public double ChallengeRating { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
+        public int Experience { get; private set; }
+
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
         public int HitPointMaximum { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Integer)]
         public int HitPoints { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp("Name", SQLSaveType.Text, CustomColumnUnique: true)] //TODO Max, something custom
         public Dictionary<string, Inventory> Inventories { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Link)]
         public List<IItem> Loot { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp("ModifyProp", SQLSaveType.Text)] //TODO Max, something custom
         public Dictionary<string, Modifier> Modifiers { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Real)]
         public Money Money { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, unique: true)]
         public string Name { get; private set; }
 
-        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text, false)] //TODO Max, from regex]
+        [DataMember, SQLProp(SQLPropSaveType.Value, SQLSaveType.Text)]
         public CreatureType Type { get; private set; }
-
-        public string Extension => throw new System.NotImplementedException();
-
-        public long ID { get; set; }
 
         #endregion Properties
 
